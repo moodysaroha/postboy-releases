@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
+import { _electron as electron } from 'playwright';
 import APICollectionTester from './test-api-collection.js';
 import UIComponentTester from './test-ui-components.js';
 import DatabaseSchemaValidator from './test-database-schema.js';
@@ -11,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Master Test Runner - Orchestrates all test suites
+ * Master Test Runner - Orchestrates all test suites with single PostBoy instance
  */
 class MasterTestRunner {
   constructor() {
@@ -23,6 +24,59 @@ class MasterTestRunner {
     };
     this.startTime = Date.now();
     this.generateHTMLReport = process.argv.includes('--report');
+    this.app = null;
+    this.window = null;
+  }
+
+  async launchPostBoy() {
+    console.log(chalk.yellow('🚀 Launching PostBoy application (single instance for all tests)...'));
+    
+    try {
+      // Launch Electron app once
+      this.app = await electron.launch({
+        args: [path.join(__dirname, '..')],
+        timeout: 30000
+      });
+      
+      // Wait for the main window
+      console.log(chalk.gray('  Waiting for main window...'));
+      
+      let window = null;
+      let attempts = 0;
+      while (!window && attempts < 20) {
+        const windows = this.app.windows();
+        for (const win of windows) {
+          try {
+            const hasUrlInput = await win.locator('#url-input').count() > 0;
+            if (hasUrlInput) {
+              window = win;
+              break;
+            }
+          } catch (e) {
+            // Window might be closed or not ready
+          }
+        }
+        if (!window) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          attempts++;
+        }
+      }
+      
+      if (!window) {
+        throw new Error('Main window did not appear after 10 seconds');
+      }
+      
+      this.window = window;
+      
+      // Wait for app to be fully loaded
+      await this.window.waitForLoadState('domcontentloaded');
+      await this.window.waitForSelector('#url-input', { timeout: 10000 });
+      
+      console.log(chalk.green('✅ PostBoy application launched successfully\n'));
+    } catch (error) {
+      console.error(chalk.red('❌ Failed to launch PostBoy:'), error.message);
+      throw error;
+    }
   }
 
   async runTestSuite(name, TestClass) {
@@ -32,8 +86,25 @@ class MasterTestRunner {
     
     const tester = new TestClass();
     
+    // Pass the existing app and window to the tester
+    tester.app = this.app;
+    tester.window = this.window;
+    
     try {
-      await tester.runAllTests();
+      // Call test methods directly without launching app
+      if (name === 'Database') {
+        // Database tests don't need the app
+        await tester.runAllTests();
+      } else if (name === 'UI Components') {
+        // UI tests have their own flow, just run the tests
+        await tester.runTestsWithExistingApp();
+      } else if (name === 'API Collection') {
+        // API tests need modification to work with existing app
+        await tester.runTestsWithExistingApp();
+      } else if (name === 'Import/Export') {
+        // Import/Export tests need modification
+        await tester.runTestsWithExistingApp();
+      }
       
       // Extract results from tester
       const resultKey = name.toLowerCase().replace(/[^a-z]/g, ''); // Remove special chars and spaces
@@ -60,7 +131,10 @@ class MasterTestRunner {
     console.log(chalk.gray('Testing API collection, UI components, database schema, and import/export'));
     console.log(chalk.gray(`Started at: ${new Date().toLocaleString()}\n`));
     
-    // Run each test suite
+    // Launch PostBoy once
+    await this.launchPostBoy();
+    
+    // Run each test suite with the same instance
     await this.runTestSuite('Database', DatabaseSchemaValidator);
     await this.runTestSuite('UI Components', UIComponentTester);
     await this.runTestSuite('API Collection', APICollectionTester);
@@ -71,6 +145,16 @@ class MasterTestRunner {
     
     if (this.generateHTMLReport) {
       this.createHTMLReport();
+    }
+    
+    // Close PostBoy after all tests
+    await this.cleanup();
+  }
+  
+  async cleanup() {
+    if (this.app) {
+      console.log(chalk.gray('\n🧹 Closing PostBoy application...'));
+      await this.app.close();
     }
   }
 

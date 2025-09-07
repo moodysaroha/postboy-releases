@@ -186,6 +186,15 @@ class APICollectionTester {
   async runAllTests() {
     await this.init();
     await this.launchApp();
+    await this.runTestsWithExistingApp();
+    await this.cleanup();
+  }
+  
+  async runTestsWithExistingApp() {
+    // This method runs tests with an already launched app
+    if (!this.testCollection) {
+      await this.init();
+    }
     
     console.log(chalk.cyan('Starting API Collection Tests\n'));
     console.log('='.repeat(60));
@@ -217,7 +226,6 @@ class APICollectionTester {
     }
     
     await this.generateReport();
-    await this.cleanup();
   }
 
   async generateReport() {

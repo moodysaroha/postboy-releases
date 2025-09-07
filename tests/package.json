@@ -8,6 +8,7 @@
     "test:api": "node test-api-collection.js",
     "test:ui": "node test-ui-components.js",
     "test:db": "node test-database-schema.js",
+    "test:import-export": "node test-import-export-collections.js",
     "test:quick": "node quick-test.js",
     "test:quick:report": "node quick-test.js --report",
     "test:report": "node run-all-tests.js --report"

@@ -39,6 +39,7 @@ Tests all UI components and interactions:
 - Tab switching (Params, Body, Headers, Auth)
 - Body type selection (JSON, XML, Form Data, etc.)
 - Collections management
+- Import/Export UI (format selection, modals, cancellation)
 - Keyboard shortcuts
 - Sidebar collapse/expand
 - Key-value pair inputs
@@ -53,6 +54,15 @@ Validates database integrity:
 - Index validation
 - Data operation tests
 - Generates schema snapshots
+
+### 4. **Import/Export Collections Tests** (`test-import-export-collections.js`)
+Tests collection import/export functionality:
+- Postman v2.1.0 format support
+- PostBoy native format support
+- Format auto-detection on import
+- Export format selection
+- Collection conflict handling
+- Data integrity verification
 
 ## 📦 Running Tests
 
@@ -83,6 +93,9 @@ yarn test:ui
 
 # Validate database schema
 yarn test:db
+
+# Test import/export functionality
+yarn test:import-export
 ```
 
 ### Full Test Suite
@@ -103,6 +116,83 @@ Tests generate multiple types of reports:
 3. **HTML Reports**: Visual reports in `test-report-*.html` (when using `--report` flag)
 4. **Schema Snapshots**: Database structure saved in `database-schema-snapshot.json`
 
+## 📥📤 Testing Import/Export Feature
+
+### Manual Testing Steps
+
+#### 1. **Test Postman Format Import**
+```bash
+# Using the provided test collection
+1. Launch PostBoy
+2. Click Import button (📥) in Collections sidebar
+3. Select `sov-identifier-collection.json` from project root
+4. Verify collection "SOV_Identifier_Collection" appears with 2 requests:
+   - AllSheetNames (GET)
+   - SheetFormatterCleaner (POST)
+```
+
+#### 2. **Test Export with Format Selection**
+```bash
+1. Click Export button (📤) in Collections sidebar
+2. Choose export format:
+   - Postman Format (v2.1.0) - for compatibility with Postman/Insomnia
+   - PostBoy Format - simpler, smaller file size
+3. Select collections to export (or select all)
+4. Save the file
+5. Verify the exported JSON has correct format
+```
+
+#### 3. **Test Round-Trip (Export → Import)**
+```bash
+1. Create a new collection with some requests
+2. Export it in either format
+3. Delete the original collection
+4. Import the exported file
+5. Verify all data is preserved:
+   - Collection name and description
+   - All requests with correct methods/URLs
+   - Headers, parameters, body content
+   - Authentication settings
+```
+
+#### 4. **Test Conflict Resolution**
+```bash
+1. Import a collection
+2. Import the same file again
+3. Choose between:
+   - Merge (creates new collection with "(Imported date)" suffix)
+   - Replace (overwrites existing collection)
+4. Verify the chosen action was applied correctly
+```
+
+### Automated Testing (Fully Automated - No Manual Intervention)
+```bash
+cd tests
+yarn test:import-export
+
+# What it does automatically:
+1. Imports SOV_Identifier_Collection from tests/sov-identifier-collection.json
+2. Exports the imported collection to project root as exported-sov-collection.json
+3. Creates additional test collections
+4. Tests collection management (rename/delete)
+5. Cleans up exported file after test completion
+6. Generates detailed report in import-export-test-report-*.json
+```
+
+### Test Files
+- `tests/sov-identifier-collection.json` - SOV collection used for import testing
+- `exported-sov-collection.json` - Temporarily created during export test (auto-deleted)
+- `tests/test-data/` - Additional test data generated during tests
+
+### Why Use Yarn Instead of Node?
+The test is configured as a yarn script (`yarn test:import-export`) for:
+- Consistency with other test commands
+- Proper dependency resolution
+- Integration with the test suite ecosystem
+- Easier to remember and type
+
+You can still run it directly with `node test-import-export-collections.js` if preferred.
+
 ## 🎯 Test Coverage
 
 ### API Testing
@@ -121,6 +211,9 @@ Tests generate multiple types of reports:
 - ✅ Form inputs
 - ✅ Keyboard shortcuts
 - ✅ Collection CRUD operations
+- ✅ Import/Export UI interactions
+- ✅ Format selection modal
+- ✅ File dialog handling (cancel)
 - ✅ Request/Response handling
 - ✅ Sidebar interactions
 - ✅ CURL command parsing
@@ -130,6 +223,16 @@ Tests generate multiple types of reports:
 - ✅ Data integrity
 - ✅ Foreign key constraints
 - ✅ Table relationships
+
+### Import/Export Testing
+- ✅ Postman v2.1.0 format import
+- ✅ PostBoy native format import
+- ✅ Format auto-detection
+- ✅ Export format selection (Postman/PostBoy)
+- ✅ Collection conflict resolution
+- ✅ Data integrity on round-trip
+- ✅ Folder structure handling
+- ✅ Authentication data preservation
 
 ## ⚙️ Configuration
 

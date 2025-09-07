@@ -1,0 +1,135 @@
+{
+  "version": "1.0",
+  "exportedAt": "2025-09-07T16:25:13.267Z",
+  "collections": [
+    {
+      "name": "Test API Collection",
+      "description": "A collection for testing import functionality",
+      "requests": [
+        {
+          "name": "Get Users",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/users",
+          "headers": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "params": [],
+          "bodyType": "none",
+          "bodyContent": "",
+          "authType": "none",
+          "authData": {}
+        },
+        {
+          "name": "Create User",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/users",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "params": [],
+          "bodyType": "json",
+          "bodyContent": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\"\n}",
+          "authType": "bearer",
+          "authData": {
+            "token": "test-bearer-token-123"
+          }
+        },
+        {
+          "name": "Update User",
+          "method": "PUT",
+          "url": "https://jsonplaceholder.typicode.com/users/1",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "params": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ],
+          "bodyType": "json",
+          "bodyContent": "{\n  \"name\": \"Updated User\",\n  \"email\": \"updated@example.com\"\n}",
+          "authType": "basic",
+          "authData": {
+            "username": "testuser",
+            "password": "testpass"
+          }
+        }
+      ]
+    },
+    {
+      "name": "HTTPBin Tests",
+      "description": "Collection for testing various HTTP methods",
+      "requests": [
+        {
+          "name": "Test Headers",
+          "method": "GET",
+          "url": "https://httpbin.org/headers",
+          "headers": [
+            {
+              "key": "X-Custom-Header",
+              "value": "TestValue"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostBoy/1.0"
+            }
+          ],
+          "params": [],
+          "bodyType": "none",
+          "bodyContent": "",
+          "authType": "none",
+          "authData": {}
+        },
+        {
+          "name": "Test POST with Form Data",
+          "method": "POST",
+          "url": "https://httpbin.org/post",
+          "headers": [],
+          "params": [],
+          "bodyType": "form-urlencoded",
+          "bodyContent": "field1=value1&field2=value2&field3=value3",
+          "authType": "none",
+          "authData": {}
+        },
+        {
+          "name": "Test Query Parameters",
+          "method": "GET",
+          "url": "https://httpbin.org/get",
+          "headers": [],
+          "params": [
+            {
+              "key": "param1",
+              "value": "value1"
+            },
+            {
+              "key": "param2",
+              "value": "value2"
+            },
+            {
+              "key": "search",
+              "value": "test query"
+            }
+          ],
+          "bodyType": "none",
+          "bodyContent": "",
+          "authType": "none",
+          "authData": {}
+        }
+      ]
+    }
+  ]
+}

@@ -483,6 +483,119 @@ class UIComponentTester {
       }
     });
 
+    // Import/Export UI Tests
+    await this.test('Export collections UI - Format selection', async () => {
+      // Click export button
+      const exportBtn = await this.window.$('#export-collection-btn');
+      if (!exportBtn) {
+        throw new Error('Export button not found');
+      }
+      
+      await exportBtn.click();
+      await this.window.waitForTimeout(500);
+      
+      // Check if format selection modal appears
+      const formatModal = await this.window.isVisible('.discord-modal:has-text("Select Export Format")').catch(() => false);
+      if (!formatModal) {
+        throw new Error('Format selection modal did not appear');
+      }
+      
+      // Verify both format options are present
+      const postmanOption = await this.window.isVisible('input[value="postman"]').catch(() => false);
+      const postboyOption = await this.window.isVisible('input[value="postboy"]').catch(() => false);
+      
+      if (!postmanOption || !postboyOption) {
+        throw new Error('Export format options not found');
+      }
+      
+      // Select PostBoy format
+      await this.window.click('input[value="postboy"]');
+      await this.window.waitForTimeout(200);
+      
+      // Click Next
+      const nextBtn = await this.window.$('button:has-text("Next")');
+      if (nextBtn) {
+        await nextBtn.click();
+      }
+      await this.window.waitForTimeout(500);
+      
+      // Now we should see collection selection modal
+      const collectionModal = await this.window.isVisible('.discord-modal:has-text("Export Collections")').catch(() => false);
+      if (!collectionModal) {
+        throw new Error('Collection selection modal did not appear');
+      }
+      
+      // Cancel the export (don't actually save file)
+      const cancelBtn = await this.window.$('button:has-text("Cancel")');
+      if (cancelBtn) {
+        await cancelBtn.click();
+      }
+      await this.window.waitForSelector('.discord-modal', { state: 'hidden', timeout: 3000 });
+    });
+
+    await this.test('Import collections UI - Button exists', async () => {
+      // Just verify the import button exists and is clickable
+      // Don't actually click it to avoid opening the file dialog
+      const importBtn = await this.window.$('#import-collection-btn');
+      if (!importBtn) {
+        throw new Error('Import button not found');
+      }
+      
+      // Check if button is visible and enabled
+      const isVisible = await importBtn.isVisible();
+      const isEnabled = await importBtn.isEnabled();
+      
+      if (!isVisible) {
+        throw new Error('Import button is not visible');
+      }
+      
+      if (!isEnabled) {
+        throw new Error('Import button is not enabled');
+      }
+      
+      console.log('Import button verified - visible and enabled');
+      
+      // We could also test hover state or other UI properties without clicking
+      await importBtn.hover();
+      await this.window.waitForTimeout(200);
+      
+      // Verify the button has the correct title/tooltip
+      const title = await importBtn.getAttribute('title');
+      if (title && !title.toLowerCase().includes('import')) {
+        throw new Error('Import button has incorrect title attribute');
+      }
+    });
+
+    await this.test('Export with no collections - Warning', async () => {
+      // First ensure no collections exist
+      const collections = await this.window.$$('.collection-item');
+      
+      // Only run this test if there are no collections
+      if (collections.length === 0) {
+        // Click export button
+        const exportBtn = await this.window.$('#export-collection-btn');
+        if (exportBtn) {
+          await exportBtn.click();
+          await this.window.waitForTimeout(500);
+          
+          // Should see warning modal
+          const warningModal = await this.window.isVisible('.discord-modal:has-text("No Collections")').catch(() => false);
+          if (!warningModal) {
+            throw new Error('Warning modal for no collections did not appear');
+          }
+          
+          // Close the warning
+          const okBtn = await this.window.$('button:has-text("OK")');
+          if (okBtn) {
+            await okBtn.click();
+          }
+          await this.window.waitForSelector('.discord-modal', { state: 'hidden', timeout: 3000 });
+        }
+      } else {
+        console.log('Skipping no-collections test as collections exist');
+      }
+    });
+
     await this.test('Cleanup - Delete all test collections', async () => {
       // Switch to Collections tab to ensure we can see all collections
       await this.window.click('.sidebar-tab-btn[data-tab="collections"]');
@@ -496,7 +609,8 @@ class UIComponentTester {
         })).filter(col => 
           col.text.includes('Test Collection') || 
           col.text.includes('Test API Collection') ||
-          col.text.includes('Renamed Collection')
+          col.text.includes('Renamed Collection') ||
+          col.text.includes('SOV_Identifier_Collection')  // Also clean up imported SOV collection
         )
       );
       
@@ -792,7 +906,12 @@ class UIComponentTester {
 
   async runAllTests() {
     await this.launchApp();
-    
+    await this.runTestsWithExistingApp();
+    await this.cleanup();
+  }
+  
+  async runTestsWithExistingApp() {
+    // This method runs tests with an already launched app
     console.log(chalk.cyan('🧪 Starting UI Component Tests\n'));
     console.log('='.repeat(60));
     
@@ -808,7 +927,6 @@ class UIComponentTester {
     await this.testCurlParsing();
     
     await this.generateReport();
-    await this.cleanup();
   }
 
   async generateReport() {

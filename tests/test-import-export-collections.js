@@ -205,7 +205,7 @@ class ImportExportTester {
   }
 
   async testCreateCollection() {
-    console.log(chalk.cyan('\n📝 Test 1: Create New Collection'));
+    console.log(chalk.cyan('\n📝 Test 3: Create New Collection'));
     
     try {
       // Click new collection button
@@ -243,7 +243,7 @@ class ImportExportTester {
   }
 
   async testAddRequestToCollection() {
-    console.log(chalk.cyan('\n📝 Test 2: Add Request to Collection'));
+    console.log(chalk.cyan('\n📝 Test 4: Add Request to Collection'));
     
     try {
       // Fill in a sample request
@@ -284,37 +284,60 @@ class ImportExportTester {
   }
 
   async testExportCollections() {
-    console.log(chalk.cyan('\n📝 Test 3: Export Collections'));
+    console.log(chalk.cyan('\n📝 Test 2: Export Collections'));
     
     try {
-      // Click export button
-      const exportBtn = await this.window.locator('#export-collection-btn');
-      if (await exportBtn.count() === 0) {
-        throw new Error('Export button not found');
+      // First, ensure we have the SOV collection to export
+      const collections = await this.window.evaluate(async () => {
+        if (window.collectionsManager) {
+          await window.collectionsManager.loadCollections();
+          return window.collectionsManager.collections;
+        }
+        return [];
+      });
+      
+      if (collections.length === 0) {
+        throw new Error('No collections available to export');
       }
       
-      await exportBtn.click();
-      await this.window.waitForTimeout(1000);
-      
-      // Check if export modal appears
-      const exportModal = await this.window.locator('.discord-modal:has-text("Export Collections")');
-      if (await exportModal.count() > 0) {
-        console.log(chalk.gray('  Export modal opened'));
-        
-        // Click Export button in modal
-        const confirmExportBtn = await this.window.locator('button:has-text("Export")').first();
-        await confirmExportBtn.click();
-        
-        // Note: We can't test the actual file save dialog in automated tests
-        // as it's a native OS dialog. In a real scenario, the user would select a file location.
-        
-        console.log(chalk.green('  ✅ Export dialog triggered successfully'));
-        console.log(chalk.gray('  Note: File save dialog cannot be automated'));
-        this.results.push({ test: 'Export Collections', passed: true });
-        return true;
-      } else {
-        throw new Error('Export modal did not appear');
+      // Find the SOV collection
+      const sovCollection = collections.find(c => c.name === 'SOV_Identifier_Collection');
+      if (!sovCollection) {
+        throw new Error('SOV_Identifier_Collection not found for export');
       }
+      
+      // Export using the database API directly (bypassing file dialog)
+      const exportResult = await this.window.evaluate(async (collectionId) => {
+        try {
+          // Export in Postman format
+          const exportData = await window.electronAPI.db.exportCollections([collectionId], 'postman');
+          return { success: true, data: exportData };
+        } catch (error) {
+          return { success: false, error: error.message };
+        }
+      }, sovCollection.id);
+      
+      if (!exportResult.success) {
+        throw new Error(exportResult.error);
+      }
+      
+      // Save the exported data to project root
+      this.exportedFilePath = path.join(path.dirname(__dirname), 'exported-sov-collection.json');
+      fs.writeFileSync(this.exportedFilePath, JSON.stringify(exportResult.data, null, 2));
+      
+      console.log(chalk.green('  ✅ Collection exported successfully'));
+      console.log(chalk.gray(`  Exported to: ${path.basename(this.exportedFilePath)}`));
+      console.log(chalk.gray(`  Format: Postman v2.1.0`));
+      
+      // Verify the exported file has correct structure
+      const exportedData = JSON.parse(fs.readFileSync(this.exportedFilePath, 'utf8'));
+      if (exportedData.info && exportedData.item) {
+        console.log(chalk.gray(`  Verified: Valid Postman format`));
+        console.log(chalk.gray(`  Requests exported: ${exportedData.item.length}`));
+      }
+      
+      this.results.push({ test: 'Export Collections', passed: true });
+      return true;
     } catch (error) {
       console.log(chalk.red('  ❌ Export test failed:'), error.message);
       this.results.push({ test: 'Export Collections', passed: false, error: error.message });
@@ -323,27 +346,58 @@ class ImportExportTester {
   }
 
   async testImportCollections() {
-    console.log(chalk.cyan('\n📝 Test 4: Import Collections'));
+    console.log(chalk.cyan('\n📝 Test 1: Import SOV Collection'));
     
     try {
-      // Click import button
-      const importBtn = await this.window.locator('#import-collection-btn');
-      if (await importBtn.count() === 0) {
-        throw new Error('Import button not found');
+      // Use the SOV collection from tests folder
+      const sovCollectionPath = path.join(__dirname, 'sov-identifier-collection.json');
+      
+      // Read the collection file
+      const collectionData = fs.readFileSync(sovCollectionPath, 'utf8');
+      const collection = JSON.parse(collectionData);
+      
+      // Import using the database API directly (bypassing file dialog)
+      const importResult = await this.window.evaluate(async (data) => {
+        try {
+          const result = await window.electronAPI.db.importCollections(data, false);
+          // Reload collections in UI
+          if (window.collectionsManager) {
+            await window.collectionsManager.loadCollections();
+            window.collectionsManager.renderCollections();
+          }
+          return result;
+        } catch (error) {
+          return { error: error.message };
+        }
+      }, collection);
+      
+      if (importResult.error) {
+        throw new Error(importResult.error);
       }
       
-      await importBtn.click();
+      // Wait for UI to update
       await this.window.waitForTimeout(1000);
       
-      // Note: We can't test the actual file open dialog in automated tests
-      // as it's a native OS dialog. In a real scenario, the user would select a file.
+      // Verify the collection was imported
+      const collectionElements = await this.window.locator('.collection-item');
+      const collectionCount = await collectionElements.count();
       
-      console.log(chalk.green('  ✅ Import dialog triggered successfully'));
-      console.log(chalk.gray('  Note: File open dialog cannot be automated'));
-      console.log(chalk.gray('  Test file available at:'), path.join(this.testDataPath, 'test-collections.json'));
-      
-      this.results.push({ test: 'Import Collections', passed: true });
-      return true;
+      if (collectionCount > 0) {
+        // Look for SOV collection specifically
+        const sovCollection = await this.window.locator('.collection-name-text:has-text("SOV_Identifier_Collection")');
+        if (await sovCollection.count() > 0) {
+          console.log(chalk.green('  ✅ SOV_Identifier_Collection imported successfully'));
+          console.log(chalk.gray(`  Collections imported: ${importResult.collectionsImported}`));
+          console.log(chalk.gray(`  Requests imported: ${importResult.requestsImported}`));
+          
+          this.results.push({ test: 'Import Collections', passed: true });
+          return true;
+        } else {
+          throw new Error('SOV collection not found after import');
+        }
+      } else {
+        throw new Error('No collections found after import');
+      }
     } catch (error) {
       console.log(chalk.red('  ❌ Import test failed:'), error.message);
       this.results.push({ test: 'Import Collections', passed: false, error: error.message });
@@ -397,22 +451,28 @@ class ImportExportTester {
   async runAllTests() {
     await this.init();
     await this.launchApp();
+    await this.runTestsWithExistingApp();
+    await this.cleanup();
+  }
+  
+  async runTestsWithExistingApp() {
+    // This method runs tests with an already launched app
+    if (!this.testDataPath) {
+      await this.init();
+    }
     
     console.log(chalk.cyan('Starting Import/Export Collections Tests'));
     console.log('='.repeat(60));
     
-    // Run tests
-    await this.testCreateCollection();
+    // Run tests - Import first, then export
+    await this.testImportCollections();  // Import SOV collection
+    await this.testExportCollections();   // Export the imported collection
+    await this.testCreateCollection();    // Test creating new collections
     await this.testAddRequestToCollection();
-    await this.testExportCollections();
-    await this.testImportCollections();
     await this.testCollectionManagement();
     
     // Generate report
     this.generateReport();
-    
-    // Cleanup
-    await this.cleanup();
   }
 
   generateReport() {
@@ -468,14 +528,16 @@ class ImportExportTester {
   }
 
   async cleanup() {
-    if (this.app) {
-      console.log(chalk.gray('\n🧹 Closing PostBoy application...'));
-      await this.app.close();
+    // Clean up exported file
+    if (this.exportedFilePath && fs.existsSync(this.exportedFilePath)) {
+      fs.unlinkSync(this.exportedFilePath);
+      console.log(chalk.gray('🗑️ Cleaned up exported file'));
     }
     
-    // Optionally clean up test exports
-    // Note: Keeping test data for manual verification
-    console.log(chalk.gray('📁 Test files preserved for manual inspection'));
+    if (this.app) {
+      console.log(chalk.gray('🧹 Closing PostBoy application...'));
+      await this.app.close();
+    }
   }
 }
 
