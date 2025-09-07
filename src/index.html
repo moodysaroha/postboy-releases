@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>PostBoy</title>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="modal-styles.css" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <h1><img src="assets/icons/png/32x32.png" alt="PostBoy" class="app-logo"> PostBoy</h1>
+      </div>
+      <div class="header-right">
+        <button class="shortcuts-btn" popovertarget="shortcuts-popover" title="Keyboard Shortcuts">
+          ⌨️
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="app-container">
+      <!-- Left Sidebar - Collections & History -->
+      <div class="sidebar left-sidebar" id="left-sidebar">
+        <div class="sidebar-header">
+          <div class="header-title">
+            <h3>Collections</h3>
+            <button class="collapse-btn" data-target="left-sidebar" title="Collapse/Expand">
+              <span class="collapse-icon">◀</span>
+            </button>
+          </div>
+          <button id="new-collection-btn" class="collection-new-btn" title="New Collection">+</button>
+          <button id="import-collection-btn" class="collection-action-btn" title="Import Collections">📥</button>
+          <button id="export-collection-btn" class="collection-action-btn" title="Export Collections">📤</button>
+        </div>
+        
+        <!-- Collections/History Tabs -->
+        <div class="sidebar-tabs">
+          <button class="sidebar-tab-btn active" data-tab="collections">Collections</button>
+          <button class="sidebar-tab-btn" data-tab="history">History</button>
+        </div>
+
+        <!-- Collections Tab -->
+        <div id="collections-tab" class="sidebar-tab-pane active">
+          <div class="collections-list" id="collections-list">
+            <div class="empty-collections">
+              <p>No collections yet</p>
+              <p>Click "+" to create your first collection</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history-tab" class="sidebar-tab-pane">
+          <div class="history-toolbar">
+            <button id="clear-history" class="clear-btn">Clear</button>
+          </div>
+          <div class="history-list" id="history-list">
+            <div class="history-item">
+              <div class="method get">GET</div>
+              <div class="url">https://jsonplaceholder.typicode.com/posts/1</div>
+              <div class="status success">200</div>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="drag-handle drag-handle-right" data-target="left-sidebar"></div>
+      </div>
+
+      <!-- Center - Main Area -->
+      <div class="main-content">
+        <!-- Request Tabs Container -->
+        <div class="request-tabs-container">
+          <div class="request-tabs-list">
+            <div class="request-tab active" data-tab-id="new-request">
+              <span class="tab-title">New Request</span>
+              <button class="tab-close-btn">&times;</button>
+            </div>
+          </div>
+          <button class="new-tab-btn" title="New Tab">+</button>
+        </div>
+
+        <div class="request-section">
+          <div class="request-line">
+            <div id="method-dropdown" class="custom-dropdown">
+              <div class="dropdown-selected" data-value="GET">
+                <span class="dropdown-text">GET</span>
+                <svg class="dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                  <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="dropdown-options">
+                <div class="dropdown-option" data-value="GET">GET</div>
+                <div class="dropdown-option" data-value="POST">POST</div>
+                <div class="dropdown-option" data-value="PUT">PUT</div>
+                <div class="dropdown-option" data-value="DELETE">DELETE</div>
+                <div class="dropdown-option" data-value="PATCH">PATCH</div>
+                <div class="dropdown-option" data-value="OPTIONS">OPTIONS</div>
+                <div class="dropdown-option" data-value="HEAD">HEAD</div>
+              </div>
+            </div>
+            <input type="text" id="url-input" class="url-input" placeholder="Enter request URL or paste curl command" />
+            <button id="send-btn" class="send-btn">Send</button>            
+          </div>
+
+          <div class="request-tabs">
+            <button class="tab-btn active" data-tab="params">
+              Params
+              <span class="tab-count" id="params-count">1</span>
+            </button>
+            <button class="tab-btn" data-tab="body">
+              Body
+              <span class="body-indicator" id="body-indicator" style="display: none;"></span>
+            </button>
+            <button class="tab-btn" data-tab="auth">
+              Authorization
+              <span class="body-indicator" id="auth-indicator" style="display: none;"></span>
+            </button>
+            <button class="tab-btn" data-tab="headers">
+              Headers
+              <span class="tab-count" id="headers-count">0</span>
+            </button>
+          </div>
+
+          <div class="tab-content">
+            <div id="params-tab" class="tab-pane active">
+              <div class="key-value-pairs" id="params-container">
+                <div class="key-value-row">
+                  <input type="text" placeholder="Key" class="key-input" />
+                  <input type="text" placeholder="Value" class="value-input" />
+                  <button class="remove-btn">×</button>
+                </div>
+              </div>
+              <button class="add-btn" data-target="params">+ Add Parameter</button>
+            </div>
+
+            <div id="body-tab" class="tab-pane">
+              <div class="body-editor-container">
+                <div class="body-editor-toolbar">
+                  <div id="body-type-dropdown" class="custom-dropdown override">
+                    <div class="dropdown-selected override" data-value="json">
+                      <span class="dropdown-text">JSON</span>
+                      <svg class="dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
+                        <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="dropdown-options">
+                      <div class="dropdown-section-header override">☰ STRUCTURED</div>
+                      <div class="dropdown-option override" data-value="form-data">Form Data</div>
+                      <div class="dropdown-option override" data-value="form-urlencoded">Form URL Encoded</div>
+                      <div class="dropdown-option override" data-value="graphql">GraphQL</div>
+                      
+                      <div class="dropdown-section-header override"></> TEXT</div>
+                      <div class="dropdown-option override" data-value="json">JSON</div>
+                      <div class="dropdown-option override" data-value="xml">XML</div>
+                      <div class="dropdown-option override" data-value="yaml">YAML</div>
+                      <div class="dropdown-option override" data-value="html">HTML</div>
+                      <div class="dropdown-option override" data-value="javascript">JavaScript</div>
+                      <div class="dropdown-option override" data-value="text">Plain Text</div>
+                      
+                      <div class="dropdown-section-header override">⋯OTHER</div>
+                      <div class="dropdown-option override" data-value="binary">File</div>
+                      <div class="dropdown-option override" data-value="none">No Body</div>
+                    </div>
+                  </div>
+                  <div class="body-actions" id="body-actions">
+                    <button id="body-format-json" class="format-btn" title="Format JSON">Format JSON</button>
+                    <button id="body-toggle-view" class="format-btn" title="Toggle View/Edit">📝</button>
+                  </div>
+                </div>
+                
+                <!-- No Body -->
+                <div id="body-none" class="body-content">
+                  <div class="empty-state">This request does not have a body.</div>
+                </div>
+                
+                <!-- Form Data -->
+                <div id="body-form-data" class="body-content">
+                  <div class="key-value-pairs" id="form-data-container">
+                    <div class="key-value-row">
+                      <input type="text" placeholder="Key" class="key-input" />
+                      <input type="text" placeholder="Value" class="value-input" />
+                      <select class="type-select">
+                        <option value="text">Text</option>
+                        <option value="file">File</option>
+                      </select>
+                      <button class="remove-btn">×</button>
+                    </div>
+                  </div>
+                  <button class="add-btn" data-target="form-data">+ Add Field</button>
+                </div>
+                
+                <!-- Form URL Encoded -->
+                <div id="body-form-urlencoded" class="body-content">
+                  <div class="key-value-pairs" id="form-urlencoded-container">
+                    <div class="key-value-row">
+                      <input type="text" placeholder="Key" class="key-input" />
+                      <input type="text" placeholder="Value" class="value-input" />
+                      <button class="remove-btn">×</button>
+                    </div>
+                  </div>
+                  <button class="add-btn" data-target="form-urlencoded">+ Add Field</button>
+                </div>
+                
+                <!-- JSON -->
+                <div id="body-json" class="body-content active">
+                  <div id="body-input" class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter JSON data"></div>
+                  <div id="body-json-viewer" class="body-json-viewer" style="display: none;"></div>
+                </div>
+                
+                <!-- XML -->
+                <div id="body-xml" class="body-content">
+                  <div class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter XML data"></div>
+                </div>
+                
+                <!-- YAML -->
+                <div id="body-yaml" class="body-content">
+                  <div class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter YAML data"></div>
+                </div>
+                
+                <!-- HTML -->
+                <div id="body-html" class="body-content">
+                  <div class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter HTML content"></div>
+                </div>
+                
+                <!-- JavaScript -->
+                <div id="body-javascript" class="body-content">
+                  <div class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter JavaScript code"></div>
+                </div>
+                
+                <!-- Plain Text -->
+                <div id="body-text" class="body-content">
+                  <div class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter plain text"></div>
+                </div>
+                
+                <!-- Binary -->
+                <div id="body-binary" class="body-content">
+                  <div class="file-upload-area">
+                    <input type="file" id="binary-file-input" class="file-input" />
+                    <div class="file-upload-placeholder">
+                      <p>Select a file to upload</p>
+                      <button type="button" class="select-file-btn">Choose File</button>
+                    </div>
+                    <div class="file-info" id="file-info" style="display: none;">
+                      <span class="file-name"></span>
+                      <span class="file-size"></span>
+                      <button type="button" class="remove-file-btn">Remove</button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- GraphQL -->
+                <div id="body-graphql" class="body-content">
+                  <div class="graphql-container">
+                    <div class="graphql-section">
+                      <label>Query</label>
+                      <div id="graphql-query" class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter GraphQL query"></div>
+                    </div>
+                    <div class="graphql-section">
+                      <label>Variables</label>
+                      <div id="graphql-variables" class="body-input" contenteditable="true" spellcheck="false" data-placeholder="Enter variables (JSON)"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="auth-tab" class="tab-pane">
+              <div class="auth-section">
+                <div class="auth-type-selector">
+                  <label for="auth-type">Type:</label>
+                  <select id="auth-type" class="auth-type-select">
+                    <option value="none">No Auth</option>
+                    <option value="basic">Basic Auth</option>
+                    <option value="bearer">Bearer Token</option>
+                    <option value="api-key">API Key</option>
+                  </select>
+                </div>
+                <div id="auth-content" class="auth-content">
+                  <div class="empty-state">This request does not use any authorization.</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="headers-tab" class="tab-pane">
+              <div class="key-value-pairs" id="headers-container">
+                <div class="key-value-row">
+                  <input type="text" placeholder="Key" class="key-input" />
+                  <input type="text" placeholder="Value" class="value-input" />
+                  <button class="remove-btn">×</button>
+                </div>
+              </div>
+              <button class="add-btn" data-target="headers">+ Add Header</button>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- Right Sidebar - Response -->
+      <div class="sidebar right-sidebar" id="right-sidebar">
+        <div class="sidebar-header">
+          <div class="header-title">
+            <h3>Response</h3>
+            <button class="collapse-btn" data-target="right-sidebar" title="Collapse/Expand">
+              <span class="collapse-icon">▶</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Response Status Bar -->
+        <div class="response-status-bar" id="response-status-bar" style="display: none;">
+          <div class="status-info">
+            <span class="status-badge" id="status-badge"></span>
+            <span class="response-time" id="response-time"></span>
+            <span class="response-size" id="response-size"></span>
+          </div>
+          <div class="response-actions">
+            <span class="response-timestamp" id="response-timestamp"></span>
+            <button class="dropdown-btn">▼</button>
+          </div>
+        </div>
+
+        <!-- Response Tabs -->
+        <div class="response-tabs">
+          <button class="response-tab-btn active" data-tab="preview">Preview</button>
+          <button class="response-tab-btn" data-tab="headers">
+            Headers
+            <span class="tab-count" id="response-headers-count">0</span>
+          </button>
+          <!-- <button class="response-tab-btn" data-tab="cookies">Cookies</button>
+          <button class="response-tab-btn" data-tab="tests">
+            Tests
+            <span class="tab-count">0 / 0</span>
+          </button>
+          <button class="response-tab-btn" data-tab="mock">Mock</button> -->
+          <button class="response-tab-btn" data-tab="console">Console</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="response-content">
+          <!-- Preview Tab -->
+          <div id="preview-tab" class="response-tab-pane active">
+            <div class="json-viewer">
+              <div class="empty-state" id="response-empty-state">Click "Send" to see response</div>
+              <div id="json-container" class="json-container" style="display: none;">
+                <div id="response-body" class="response-body"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Headers Tab -->
+          <div id="response-headers-tab" class="response-tab-pane">
+            <div class="headers-table">
+              <div class="table-header">
+                <div class="table-col">NAME</div>
+                <div class="table-col">VALUE</div>
+              </div>
+              <div class="table-body" id="response-headers-table">
+                <!-- Headers will be populated here -->
+              </div>
+            </div>
+            <button class="copy-btn">Copy to Clipboard</button>
+          </div>
+
+          <!-- Other tabs -->
+          <div id="cookies-tab" class="response-tab-pane">
+            <div class="empty-state">No cookies found</div>
+          </div>
+
+          <div id="tests-tab" class="response-tab-pane">
+            <div class="empty-state">No tests defined</div>
+          </div>
+
+          <div id="mock-tab" class="response-tab-pane">
+            <div class="empty-state">Mock server not configured</div>
+          </div>
+
+          <div id="console-tab" class="response-tab-pane">
+            <div class="console-content" id="console-content">
+              <div class="console-log">Ready to make requests...</div>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="drag-handle drag-handle-left" data-target="right-sidebar"></div>
+      </div>
+    </div>
+
+    <!-- Single Footer -->
+    <div class="app-footer">
+      <div class="footer-content">
+        <span class="footer-text">Collections & History</span>
+        <span class="footer-separator">•</span>
+        <span class="footer-text">Request Builder</span>
+        <span class="footer-separator">•</span>
+        <span class="footer-text">Response Panel</span>
+        <span class="footer-separator">•</span>
+        <span class="footer-text" id="app-version">v...</span>
+      </div>
+    </div>
+
+
+
+    <!-- Shortcuts Popover -->
+    <div id="shortcuts-popover" popover="auto" class="shortcuts-popover">
+      <div class="shortcuts-header">
+        <h3>Keyboard Shortcuts</h3>
+      </div>
+      <div class="shortcuts-content">
+        <div class="shortcuts-section">
+          <h4>Help</h4>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>P</kbd><kbd>P</kbd><kbd>P</kbd><kbd>P</kbd>
+            </div>
+            <span class="shortcut-description">Show this help (works anywhere)</span>
+          </div>
+        </div>
+        
+        <div class="shortcuts-section">
+          <h4>Navigation</h4>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>I</kbd>
+            </div>
+            <span class="shortcut-description">Focus URL input</span>
+          </div>
+        </div>
+        
+        <div class="shortcuts-section">
+          <h4>Actions</h4>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
+            </div>
+            <span class="shortcut-description">Send request (from Anywhere)</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Enter</kbd>
+            </div>
+            <span class="shortcut-description">Send request (from URL)</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>S</kbd>
+            </div>
+            <span class="shortcut-description">Save request</span>
+          </div>
+        </div>
+        
+        <div class="shortcuts-section">
+          <h4>Request Building</h4>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>H</kbd>
+            </div>
+            <span class="shortcut-description">Focus headers tab</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd>
+            </div>
+            <span class="shortcut-description">Focus body tab</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>J</kbd>
+            </div>
+            <span class="shortcut-description">Set body to JSON</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>X</kbd>
+            </div>
+            <span class="shortcut-description">Set body to XML</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>Y</kbd>
+            </div>
+            <span class="shortcut-description">Set body to YAML</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>H</kbd>
+            </div>
+            <span class="shortcut-description">Set body to HTML</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>T</kbd>
+            </div>
+            <span class="shortcut-description">Set body to Text</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>F</kbd>
+            </div>
+            <span class="shortcut-description">Set body to Form Data</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>U</kbd>
+            </div>
+            <span class="shortcut-description">Set body to Form URL Encoded</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>I</kbd>
+            </div>
+            <span class="shortcut-description">Set body to Binary/File</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>G</kbd>
+            </div>
+            <span class="shortcut-description">Set body to GraphQL</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>B</kbd> + <kbd>N</kbd>
+            </div>
+            <span class="shortcut-description">Set body to None</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>P</kbd>
+            </div>
+            <span class="shortcut-description">Focus params tab</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>
+            </div>
+            <span class="shortcut-description">Focus auth tab</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>
+            </div>
+            <span class="shortcut-description">Switch to Collections</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd>
+            </div>
+            <span class="shortcut-description">Switch to History</span>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <kbd>Tab</kbd>
+            </div>
+            <span class="shortcut-description">Navigate between fields</span>
+          </div>
+        </div>
+        
+        <div class="shortcuts-section">
+          <h4>Tips</h4>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="tip-icon">💡</span>
+            </div>
+            <span class="shortcut-description">Paste curl commands directly in URL input</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load modules first -->
+    <script src="renderjson.js"></script>    
+    <script src="modal-manager.js"></script>
+    <script src="auth.js"></script>
+    <script src="collections.js"></script>
+    <!-- Then load main app -->
+    <script src="renderer.js"></script>
+  </body>
+</html>

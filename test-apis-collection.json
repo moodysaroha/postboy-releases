@@ -1,0 +1,636 @@
+{
+  "name": "Postboy Test API Collection",
+  "description": "Comprehensive collection of working test APIs to validate all curl request types",
+  "version": "1.0.0",
+  "categories": [
+    {
+      "name": "Internal/Local APIs",
+      "description": "Test internal and local API endpoints",
+      "requests": [
+        {
+          "name": "Geocode API - Your Example",
+          "method": "POST",
+          "url": "http://10.5.5.108:9100/geocode?internalUse=true",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "addresses_with_ids": [
+              {
+                "id": "addr_001",
+                "address": "123 Street, New York, NY 10001"
+              },
+              {
+                "id": "addr_002",
+                "address": "4561 Oak Avenue, Los Angeles, CA 90210"
+              }
+            ]
+          },
+          "description": "Internal geocoding service with multiple addresses",
+          "curl": "curl --location 'http://10.5.5.108:9100/geocode?internalUse=true' --header 'Content-Type: application/json' --data '{\"addresses_with_ids\": [{\"id\": \"addr_001\", \"address\": \"123 Street, New York, NY 10001\"}, {\"id\": \"addr_002\", \"address\": \"4561 Oak Avenue, Los Angeles, CA 90210\"}]}'"
+        }
+      ]
+    },
+    {
+      "name": "Basic HTTP Methods",
+      "description": "Test basic GET, POST, PUT, PATCH, DELETE requests",
+      "requests": [
+        {
+          "name": "GET Request - List Posts",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "description": "Simple GET request to fetch all posts",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts'"
+        },
+        {
+          "name": "GET Request - Single Post",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "description": "GET request with path parameter",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/1'"
+        },
+        {
+          "name": "POST Request - Create Post",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "title": "Test Post",
+            "body": "This is a test post body",
+            "userId": 1
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/json' --data '{\"title\": \"Test Post\", \"body\": \"This is a test post body\", \"userId\": 1}'"
+        },
+        {
+          "name": "PUT Request - Update Post",
+          "method": "PUT",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": 1,
+            "title": "Updated Post",
+            "body": "Updated post body",
+            "userId": 1
+          },
+          "curl": "curl --location --request PUT 'https://jsonplaceholder.typicode.com/posts/1' --header 'Content-Type: application/json' --data '{\"id\": 1, \"title\": \"Updated Post\", \"body\": \"Updated post body\", \"userId\": 1}'"
+        },
+        {
+          "name": "PATCH Request - Partial Update",
+          "method": "PATCH",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "title": "Patched Title"
+          },
+          "curl": "curl --location --request PATCH 'https://jsonplaceholder.typicode.com/posts/1' --header 'Content-Type: application/json' --data '{\"title\": \"Patched Title\"}'"
+        },
+        {
+          "name": "DELETE Request",
+          "method": "DELETE",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "curl": "curl --location --request DELETE 'https://jsonplaceholder.typicode.com/posts/1'"
+        }
+      ]
+    },
+    {
+      "name": "Query Parameters",
+      "description": "Test requests with various query parameters",
+      "requests": [
+        {
+          "name": "Single Query Parameter",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts?userId=1",
+          "description": "GET request with single query parameter",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts?userId=1'"
+        },
+        {
+          "name": "Multiple Query Parameters",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/comments?postId=1&id=1",
+          "description": "GET request with multiple query parameters",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/comments?postId=1&id=1'"
+        },
+        {
+          "name": "Query with Special Characters",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/users?name=John%20Doe&email=john%40example.com",
+          "description": "Query parameters with URL encoded special characters",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/users?name=John%20Doe&email=john%40example.com'"
+        },
+        {
+          "name": "Array Query Parameters",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts?userId=1&userId=2&userId=3",
+          "description": "Query parameters as arrays",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts?userId=1&userId=2&userId=3'"
+        }
+      ]
+    },
+    {
+      "name": "JSON Data",
+      "description": "Test requests with JSON payloads",
+      "requests": [
+        {
+          "name": "Simple JSON POST",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "title": "Test Post",
+            "body": "This is a test post body",
+            "userId": 1
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/json' --data '{\"title\": \"Test Post\", \"body\": \"This is a test post body\", \"userId\": 1}'"
+        },
+        {
+          "name": "Nested JSON",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "title": "Nested Data Post",
+            "body": "Post with nested structure",
+            "userId": 2,
+            "metadata": {
+              "author": "Jane Smith",
+              "tags": ["test", "nested", "json"]
+            }
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/json' --data '{\"title\": \"Nested Data Post\", \"body\": \"Post with nested structure\", \"userId\": 2, \"metadata\": {\"author\": \"Jane Smith\", \"tags\": [\"test\", \"nested\", \"json\"]}}'"
+        },
+        {
+          "name": "JSON Array",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "title": "Array Test",
+            "body": "Testing array data",
+            "userId": 3,
+            "items": [
+              {"id": 1, "name": "Item 1"},
+              {"id": 2, "name": "Item 2"},
+              {"id": 3, "name": "Item 3"}
+            ]
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/json' --data '{\"title\": \"Array Test\", \"body\": \"Testing array data\", \"userId\": 3, \"items\": [{\"id\": 1, \"name\": \"Item 1\"}, {\"id\": 2, \"name\": \"Item 2\"}, {\"id\": 3, \"name\": \"Item 3\"}]}'"
+        }
+      ]
+    },
+    {
+      "name": "XML Data",
+      "description": "Test requests with XML payloads",
+      "requests": [
+        {
+          "name": "XML POST Request",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/xml"
+          },
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><title>Test Post</title><body>Test content</body><userId>1</userId></root>",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/xml' --data '<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><title>Test Post</title><body>Test content</body><userId>1</userId></root>'"
+        },
+        {
+          "name": "SOAP-like XML Request",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "text/xml",
+            "SOAPAction": "http://example.com/CreatePost"
+          },
+          "body": "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\"><soap:Body><CreatePost><Title>Test</Title><UserId>1</UserId></CreatePost></soap:Body></soap:Envelope>",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: text/xml' --header 'SOAPAction: http://example.com/CreatePost' --data '<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\"><soap:Body><CreatePost><Title>Test</Title><UserId>1</UserId></CreatePost></soap:Body></soap:Envelope>'"
+        }
+      ]
+    },
+    {
+      "name": "Form Data",
+      "description": "Test requests with form data (URL encoded and multipart)",
+      "requests": [
+        {
+          "name": "URL Encoded Form Data",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "body": "title=Test%20Post&body=Test%20content&userId=1",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'title=Test Post' --data-urlencode 'body=Test content' --data-urlencode 'userId=1'"
+        },
+        {
+          "name": "Multipart Form Data",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "multipart/form-data"
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --form 'title=\"Test Post\"' --form 'body=\"Test content\"' --form 'userId=\"1\"'"
+        },
+        {
+          "name": "Form with File Upload",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "description": "Multipart form with file upload (create a test.txt file first)",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --form 'title=\"File Upload Test\"' --form 'file=@\"/path/to/file.txt\"' --form 'userId=\"1\"'"
+        },
+        {
+          "name": "Mixed Multipart Data",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "description": "Multipart with JSON field",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --form 'data=\"{\\\"title\\\":\\\"Test\\\",\\\"userId\\\":1}\";type=application/json' --form 'body=\"Test content\"'"
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "description": "Test various authentication methods",
+      "requests": [
+        {
+          "name": "Basic Authentication",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "headers": {
+            "Authorization": "Basic dXNlcjpwYXNzd2Q="
+          },
+          "description": "Basic auth header example (JSONPlaceholder doesn't require auth but accepts the header)",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/1' --header 'Authorization: Basic dXNlcjpwYXNzd2Q='"
+        },
+        {
+          "name": "Basic Auth (Alternative)",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/2",
+          "description": "Using curl's --user flag",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/2' --user 'admin:secret'"
+        },
+        {
+          "name": "Bearer Token",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/users/1",
+          "headers": {
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          },
+          "description": "Bearer token authentication",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/users/1' --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'"
+        },
+        {
+          "name": "API Key in Header",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/todos/1",
+          "headers": {
+            "X-API-Key": "your-api-key-here-123456789"
+          },
+          "description": "API key authentication via custom header",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/todos/1' --header 'X-API-Key: your-api-key-here-123456789'"
+        },
+        {
+          "name": "API Key in Query",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/albums?api_key=your-api-key-123&_limit=5",
+          "description": "API key as query parameter",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/albums?api_key=your-api-key-123&_limit=5'"
+        },
+        {
+          "name": "Digest Authentication",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/photos/1",
+          "description": "Digest auth example (JSONPlaceholder doesn't require auth)",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/photos/1' --digest --user 'user:passwd'"
+        }
+      ]
+    },
+    {
+      "name": "Complex Headers",
+      "description": "Test requests with multiple and complex headers",
+      "requests": [
+        {
+          "name": "Multiple Custom Headers",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "headers": {
+            "X-Custom-Header": "CustomValue",
+            "X-Request-ID": "123e4567-e89b-12d3-a456-426614174000",
+            "X-Forwarded-For": "203.0.113.195",
+            "X-Forwarded-Proto": "https",
+            "X-Frame-Options": "DENY"
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/1' --header 'X-Custom-Header: CustomValue' --header 'X-Request-ID: 123e4567-e89b-12d3-a456-426614174000' --header 'X-Forwarded-For: 203.0.113.195' --header 'X-Forwarded-Proto: https' --header 'X-Frame-Options: DENY'"
+        },
+        {
+          "name": "User Agent and Accept Headers",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/users/1",
+          "headers": {
+            "User-Agent": "MyCustomApp/1.0 (Windows NT 10.0; Win64; x64)",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br"
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/users/1' --header 'User-Agent: MyCustomApp/1.0 (Windows NT 10.0; Win64; x64)' --header 'Accept: application/json, text/plain, */*' --header 'Accept-Language: en-US,en;q=0.9' --header 'Accept-Encoding: gzip, deflate, br'"
+        },
+        {
+          "name": "CORS Headers",
+          "method": "OPTIONS",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Origin": "https://example.com",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "Content-Type, Authorization"
+          },
+          "description": "Preflight CORS request",
+          "curl": "curl --location --request OPTIONS 'https://jsonplaceholder.typicode.com/posts' --header 'Origin: https://example.com' --header 'Access-Control-Request-Method: POST' --header 'Access-Control-Request-Headers: Content-Type, Authorization'"
+        },
+        {
+          "name": "Cache Control Headers",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "headers": {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "If-None-Match": "\"33a64df551425fcc55e4d42a148795d9f25f89d4\"",
+            "If-Modified-Since": "Wed, 21 Oct 2023 07:28:00 GMT"
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/1' --header 'Cache-Control: no-cache, no-store, must-revalidate' --header 'Pragma: no-cache' --header 'If-None-Match: \"33a64df551425fcc55e4d42a148795d9f25f89d4\"' --header 'If-Modified-Since: Wed, 21 Oct 2023 07:28:00 GMT'"
+        }
+      ]
+    },
+    {
+      "name": "Cookies",
+      "description": "Test requests with cookies",
+      "requests": [
+        {
+          "name": "Send Cookies",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "headers": {
+            "Cookie": "sessionId=abc123; userId=user456; preferences=theme%3Ddark%26lang%3Den"
+          },
+          "description": "Send multiple cookies",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/1' --header 'Cookie: sessionId=abc123; userId=user456; preferences=theme%3Ddark%26lang%3Den'"
+        },
+        {
+          "name": "Set Cookie",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts?_limit=1",
+          "description": "Request with cookie jar",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts?_limit=1' --cookie-jar cookies.txt"
+        },
+        {
+          "name": "Cookie with Attributes",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/2",
+          "headers": {
+            "Cookie": "sessionId=xyz789; Path=/; Domain=.example.com; Secure; HttpOnly; SameSite=Strict"
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/2' --header 'Cookie: sessionId=xyz789; Path=/; Domain=.example.com; Secure; HttpOnly; SameSite=Strict'"
+        }
+      ]
+    },
+    {
+      "name": "Complex Scenarios",
+      "description": "Test complex request scenarios",
+      "requests": [
+        {
+          "name": "GraphQL Query",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "query": "query GetUser($id: ID!) { user(id: $id) { name email posts { title content } } }",
+            "variables": {
+              "id": "123"
+            }
+          },
+          "description": "GraphQL query with variables",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/json' --data '{\"query\": \"query GetUser($id: ID!) { user(id: $id) { name email posts { title content } } }\", \"variables\": {\"id\": \"123\"}}'"
+        },
+        {
+          "name": "Webhook Simulation",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Webhook-Signature": "sha256=b0344c61d8db38e0f0e12c7c4b8c7c1e5e7f6b3e8c9d9e7f6b3e8c9d9e7f6b3e",
+            "X-Webhook-ID": "evt_1234567890",
+            "X-Webhook-Timestamp": "1634567890"
+          },
+          "body": {
+            "event": "payment.completed",
+            "data": {
+              "id": "pay_123",
+              "amount": 1000,
+              "currency": "USD"
+            }
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/json' --header 'X-Webhook-Signature: sha256=b0344c61d8db38e0f0e12c7c4b8c7c1e5e7f6b3e8c9d9e7f6b3e8c9d9e7f6b3e' --header 'X-Webhook-ID: evt_1234567890' --header 'X-Webhook-Timestamp: 1634567890' --data '{\"event\": \"payment.completed\", \"data\": {\"id\": \"pay_123\", \"amount\": 1000, \"currency\": \"USD\"}}'"
+        },
+        {
+          "name": "Chunked Transfer Encoding",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Transfer-Encoding": "chunked",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "chunks": ["chunk1", "chunk2", "chunk3"]
+          },
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Transfer-Encoding: chunked' --header 'Content-Type: application/json' --data '{\"title\": \"Chunked Test\", \"body\": \"Testing chunked encoding\", \"userId\": 1}'"
+        },
+        {
+          "name": "Request with Timeout",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "description": "Request with 5 second timeout",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/1' --max-time 5"
+        },
+        {
+          "name": "Follow Redirects",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "description": "Follow redirects example",
+          "curl": "curl --location --max-redirs 3 'https://jsonplaceholder.typicode.com/posts'"
+        },
+        {
+          "name": "Compressed Response",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Accept-Encoding": "gzip, deflate"
+          },
+          "description": "Request compressed response",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Accept-Encoding: gzip, deflate' --compressed"
+        }
+      ]
+    },
+    {
+      "name": "Real World APIs",
+      "description": "Examples with real public APIs",
+      "requests": [
+        {
+          "name": "GitHub API - Get User",
+          "method": "GET",
+          "url": "https://api.github.com/users/octocat",
+          "headers": {
+            "Accept": "application/vnd.github.v3+json"
+          },
+          "description": "Get GitHub user information",
+          "curl": "curl --location 'https://api.github.com/users/octocat' --header 'Accept: application/vnd.github.v3+json'"
+        },
+        {
+          "name": "Random User Generator",
+          "method": "GET",
+          "url": "https://randomuser.me/api/?results=5&nat=us,gb&inc=name,email,phone",
+          "description": "Generate random user data",
+          "curl": "curl --location 'https://randomuser.me/api/?results=5&nat=us,gb&inc=name,email,phone'"
+        },
+        {
+          "name": "REST Countries",
+          "method": "GET",
+          "url": "https://restcountries.com/v3.1/name/canada",
+          "description": "Get country information",
+          "curl": "curl --location 'https://restcountries.com/v3.1/name/canada'"
+        },
+        {
+          "name": "Dog CEO API",
+          "method": "GET",
+          "url": "https://dog.ceo/api/breeds/image/random",
+          "description": "Get random dog image",
+          "curl": "curl --location 'https://dog.ceo/api/breeds/image/random'"
+        },
+        {
+          "name": "IP Geolocation",
+          "method": "GET",
+          "url": "https://ipapi.co/8.8.8.8/json/",
+          "description": "Get geolocation data for IP address",
+          "curl": "curl --location 'https://ipapi.co/8.8.8.8/json/'"
+        },
+        {
+          "name": "Exchange Rates",
+          "method": "GET",
+          "url": "https://api.exchangerate-api.com/v4/latest/USD",
+          "description": "Get latest exchange rates",
+          "curl": "curl --location 'https://api.exchangerate-api.com/v4/latest/USD'"
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "description": "Test error responses",
+      "requests": [
+        {
+          "name": "400 Bad Request",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/invalid",
+          "description": "May return error for invalid ID",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/invalid'"
+        },
+        {
+          "name": "401 Unauthorized",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/1",
+          "description": "Example with auth header (API doesn't require auth)",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/1' --header 'Authorization: Invalid'"
+        },
+        {
+          "name": "403 Forbidden",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "description": "Example forbidden request",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'X-Forbidden: true'"
+        },
+        {
+          "name": "404 Not Found",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts/999999",
+          "description": "Returns 404 for non-existent resource",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts/999999'"
+        },
+        {
+          "name": "500 Internal Server Error",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "description": "Example server error request",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'X-Trigger-Error: 500'"
+        },
+        {
+          "name": "503 Service Unavailable",
+          "method": "GET",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "description": "Example service unavailable request",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'X-Service-Unavailable: true'"
+        }
+      ]
+    },
+    {
+      "name": "Special Content Types",
+      "description": "Test various content types",
+      "requests": [
+        {
+          "name": "Plain Text",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "text/plain"
+          },
+          "body": "This is plain text content.\nLine 2 of the text.\nLine 3 with special chars: @#$%^&*()",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: text/plain' --data 'title=Plain Text Post&body=This is plain text content&userId=1'"
+        },
+        {
+          "name": "HTML Content",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "text/html"
+          },
+          "body": "<!DOCTYPE html><html><head><title>Test</title></head><body><h1>Hello World</h1><p>This is a test.</p></body></html>",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: text/html' --data '<html><body><h1>Test Post</h1><p>HTML content test</p></body></html>'"
+        },
+        {
+          "name": "CSV Data",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "text/csv"
+          },
+          "body": "name,age,email\nJohn Doe,30,john@example.com\nJane Smith,25,jane@example.com\nBob Johnson,35,bob@example.com",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: text/csv' --data 'title,body,userId\nTest Post,Test Content,1'"
+        },
+        {
+          "name": "Binary Data (Base64)",
+          "method": "POST",
+          "url": "https://jsonplaceholder.typicode.com/posts",
+          "headers": {
+            "Content-Type": "application/octet-stream",
+            "Content-Transfer-Encoding": "base64"
+          },
+          "body": "SGVsbG8gV29ybGQhIFRoaXMgaXMgYmluYXJ5IGRhdGEgZW5jb2RlZCBpbiBiYXNlNjQu",
+          "curl": "curl --location 'https://jsonplaceholder.typicode.com/posts' --header 'Content-Type: application/octet-stream' --header 'Content-Transfer-Encoding: base64' --data 'SGVsbG8gV29ybGQhIFRoaXMgaXMgYmluYXJ5IGRhdGEgZW5jb2RlZCBpbiBiYXNlNjQu'"
+        }
+      ]
+    }
+  ],
+  "notes": {
+    "usage": "These are all working, free public APIs that can be used to test your Postman clone",
+    "jsonplaceholder": "JSONPlaceholder is a free fake REST API for testing and prototyping",
+    "authentication": "For APIs requiring API keys, you'll need to register for free keys",
+    "file_uploads": "For file upload tests, create local test files first",
+    "rate_limits": "Some APIs may have rate limits - use responsibly",
+    "cors": "Some APIs may have CORS restrictions when called from browsers"
+  }
+}

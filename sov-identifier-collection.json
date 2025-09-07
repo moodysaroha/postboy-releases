@@ -1,0 +1,72 @@
+{
+	"info": {
+		"_postboy_id": "6991a539-b738-42ad-8be5-14c47e0a30c7",
+		"name": "SOV_Identifier_Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43193217"
+	},
+	"item": [
+		{
+			"name": "AllSheetNames",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.5.2.208:8443/api/v1/allsheets/AllSheetNames",
+					"protocol": "http",
+					"host": [
+						"10",
+						"5",
+						"2",
+						"208"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"v1",
+						"allsheets",
+						"AllSheetNames"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SheetFormatterCleaner",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "server_path = Details['FilePath']\r\nFileName = Details['FileName']\r\nSourceTab = Details['SourceTab']\r\nOutputFileName = Details['OutputFileName']\r\nOutputTabName = Details['OutputTabName']\r\nOutputPath = Details['OutputPath']\r\n\r\n//this needs to be converted to proper json format.",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://10.5.2.208:8443/api/v1/format/SheetFormatterCleaner",
+					"protocol": "http",
+					"host": [
+						"10",
+						"5",
+						"2",
+						"208"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"v1",
+						"format",
+						"SheetFormatterCleaner"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

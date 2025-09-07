@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and Yarn
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build and publish to GitHub Releases
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn run publish
+
+      - name: Generate latest.yml for auto-updater
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          # Read the RELEASES file to get the hash and size
+          $releasesContent = Get-Content "out/make/squirrel.windows/x64/RELEASES"
+          $releaseInfo = $releasesContent -split ' '
+          $sha1Hash = $releaseInfo[0]
+          $fileName = $releaseInfo[1]
+          $fileSize = $releaseInfo[2]
+          
+          $latestYml = @"
+          version: $version
+          files:
+            - url: $fileName
+              sha512: ""
+              size: $fileSize
+          releaseDate: $(Get-Date -Format yyyy-MM-ddTHH:mm:ss.fffZ)
+          path: $fileName
+          sha512: ""
+          releaseName: v$version
+          releaseNotes: ""
+          "@
+          $latestYml | Out-File -FilePath "out/make/squirrel.windows/x64/latest.yml" -Encoding UTF8
+
+      - name: Upload latest.yml to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.ref_name }} out/make/squirrel.windows/x64/latest.yml --clobber
+
+      - name: Upload additional artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            out/make/**/*.exe
+            out/make/**/*.nupkg
+            out/make/**/RELEASES
+            out/make/**/latest.yml
