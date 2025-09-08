@@ -31,9 +31,21 @@
               <span class="collapse-icon">◀</span>
             </button>
           </div>
-          <button id="new-collection-btn" class="collection-new-btn" title="New Collection">+</button>
-          <button id="import-collection-btn" class="collection-action-btn" title="Import Collections">📥</button>
-          <button id="export-collection-btn" class="collection-action-btn" title="Export Collections">📤</button>
+          <div class="header-actions">
+            <button id="new-collection-btn" class="collection-new-btn" title="New Collection">+</button>
+            <button id="import-collection-btn" class="collection-action-btn" title="Import Collections">📥</button>
+            <button id="export-collection-btn" class="collection-action-btn" title="Export Collections">📤</button>
+          </div>
+        </div>
+        
+        <!-- Collapsed state controls - only visible when collapsed -->
+        <div class="collapsed-controls">
+          <button class="expand-btn" data-target="left-sidebar" title="Expand Collections">
+            <span class="expand-icon">▶</span>
+          </button>
+          <button id="new-collection-btn-collapsed" class="collection-new-btn-collapsed" title="New Collection">+</button>
+          <button id="import-collection-btn-collapsed" class="collection-action-btn-collapsed" title="Import Collections">📥</button>
+          <button id="export-collection-btn-collapsed" class="collection-action-btn-collapsed" title="Export Collections">📤</button>
         </div>
         
         <!-- Collections/History Tabs -->

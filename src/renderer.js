@@ -966,6 +966,14 @@ class PostBoy {
         this.toggleSidebar(targetId);
       });
     });
+
+    // Add event listeners for expand buttons (in collapsed state)
+    document.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = btn.getAttribute('data-target');
+        this.toggleSidebar(targetId);
+      });
+    });
   }
 
   toggleSidebar(sidebarId) {

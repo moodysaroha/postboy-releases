@@ -120,6 +120,12 @@ body {
   align-items: center;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
 .header-title {
   display: flex;
   align-items: center;
@@ -448,6 +454,46 @@ body {
   transition: transform 0.3s ease;
 }
 
+/* Collapsed Controls */
+.collapsed-controls {
+  display: none;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  gap: 0.5rem;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.expand-btn,
+.collection-new-btn-collapsed,
+.collection-action-btn-collapsed {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+}
+
+.expand-btn:hover,
+.collection-new-btn-collapsed:hover,
+.collection-action-btn-collapsed:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.expand-icon {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
 /* Collapsed States */
 .sidebar.collapsed {
   width: 40px !important;
@@ -455,10 +501,15 @@ body {
 }
 
 .sidebar.collapsed .sidebar-header {
-  padding: 1rem 0.5rem;
+  display: none;
+}
+
+.sidebar.collapsed .collapsed-controls {
+  display: flex;
 }
 
 .sidebar.collapsed .sidebar-header h3,
+.sidebar.collapsed .header-actions,
 .sidebar.collapsed .clear-btn,
 .sidebar.collapsed .response-status,
 .sidebar.collapsed .sidebar-tabs,

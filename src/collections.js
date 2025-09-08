@@ -20,7 +20,7 @@ class CollectionsManager {
   }
 
   setupEventListeners() {
-    // New collection button
+    // New collection button (expanded state)
     const newCollectionBtn = document.getElementById('new-collection-btn');
     if (newCollectionBtn) {
       newCollectionBtn.addEventListener('click', (e) => {
@@ -29,7 +29,16 @@ class CollectionsManager {
       });
     }
 
-    // Import collections button
+    // New collection button (collapsed state)
+    const newCollectionBtnCollapsed = document.getElementById('new-collection-btn-collapsed');
+    if (newCollectionBtnCollapsed) {
+      newCollectionBtnCollapsed.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.createNewCollection();
+      });
+    }
+
+    // Import collections button (expanded state)
     const importBtn = document.getElementById('import-collection-btn');
     if (importBtn) {
       importBtn.addEventListener('click', (e) => {
@@ -38,10 +47,28 @@ class CollectionsManager {
       });
     }
 
-    // Export collections button
+    // Import collections button (collapsed state)
+    const importBtnCollapsed = document.getElementById('import-collection-btn-collapsed');
+    if (importBtnCollapsed) {
+      importBtnCollapsed.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.importCollections();
+      });
+    }
+
+    // Export collections button (expanded state)
     const exportBtn = document.getElementById('export-collection-btn');
     if (exportBtn) {
       exportBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.exportCollections();
+      });
+    }
+
+    // Export collections button (collapsed state)
+    const exportBtnCollapsed = document.getElementById('export-collection-btn-collapsed');
+    if (exportBtnCollapsed) {
+      exportBtnCollapsed.addEventListener('click', (e) => {
         e.preventDefault();
         this.exportCollections();
       });
