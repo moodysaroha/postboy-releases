@@ -22,12 +22,12 @@ const createLoadingWindow = () => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, '../preload/preload.js')
     },
-    icon: path.join(__dirname, 'assets', 'icons', 'win', 'icon.ico'),
+    icon: path.join(__dirname, '../assets', 'icons', 'win', 'icon.ico'),
   });
 
-  loadingWindow.loadFile(path.join(__dirname, 'loading.html'));
+  loadingWindow.loadFile(path.join(__dirname, '../views/loading.html'));
   
   loadingWindow.once('ready-to-show', () => {
     loadingWindow.show();
@@ -44,7 +44,7 @@ const createWindow = () => {
     backgroundColor: '#1a1a1a',
     paintWhenInitiallyHidden: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, '../preload/preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
@@ -52,7 +52,7 @@ const createWindow = () => {
       backgroundThrottling: false,
       offscreen: false
     },
-    icon: path.join(__dirname, 'assets', 'icons', 'win', 'icon.ico'),
+    icon: path.join(__dirname, '../assets', 'icons', 'win', 'icon.ico'),
   });
 
   const template = [
@@ -133,7 +133,7 @@ const menu = Menu.buildFromTemplate(template);
     contextMenu.popup();
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.loadFile(path.join(__dirname, '../views/index.html'));
 
   // Wait for the main window to be ready
   mainWindow.once('ready-to-show', () => {

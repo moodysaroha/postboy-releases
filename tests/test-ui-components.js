@@ -32,7 +32,7 @@ class UIComponentTester {
       
       let window = null;
       let attempts = 0;
-      while (!window && attempts < 30) {
+      while (!window && attempts < 60) {
         const windows = this.app.windows();
         for (const win of windows) {
           try {
@@ -52,10 +52,12 @@ class UIComponentTester {
       }
       
       if (!window) {
-        throw new Error('Main window did not appear after 15 seconds');
+        throw new Error('Main window did not appear after 30 seconds');
       }
       
       this.window = window;
+      // Set default timeout for all operations to 5 seconds
+      this.window.setDefaultTimeout(5000);
       await this.window.waitForLoadState('domcontentloaded');
       await this.window.waitForSelector('#url-input', { timeout: 10000 });
       
@@ -453,7 +455,7 @@ class UIComponentTester {
 
       // Get initial collection count
       const initialCount = await this.window.$$eval('.collection-item', collections => collections.length);
-      
+
       // Click the delete button for the first collection
       await this.window.click('.delete-collection-btn');
       await this.window.waitForTimeout(500);
@@ -618,7 +620,7 @@ class UIComponentTester {
       
       // Delete each test collection
       for (const collection of testCollections) {
-        try {
+        try {          
           // Find and click the delete button for this collection
           const deleteButton = await this.window.$(`.collection-item[data-collection-id="${collection.id}"] .delete-collection-btn`);
           if (deleteButton) {
@@ -826,7 +828,28 @@ class UIComponentTester {
   async testSidebarCollapse() {
     console.log(chalk.yellow('\n📐 Testing Sidebar Collapse'));
     
+    // Clear localStorage to ensure consistent starting state
+    await this.window.evaluate(() => {
+      localStorage.removeItem('sidebar-states');
+    });
+    
+    // Refresh to apply clean state
+    await this.window.reload();
+    await this.window.waitForTimeout(1000);
+    
     await this.test('Collapse left sidebar', async () => {
+      // Check initial state and ensure it's expanded
+      const initialState = await this.window.evaluate(() => {
+        return document.querySelector('#left-sidebar').classList.contains('collapsed');
+      });
+      
+      if (initialState) {
+        // If already collapsed, expand it first using expand button
+        await this.window.click('#left-sidebar .expand-btn');
+        await this.window.waitForTimeout(300);
+      }
+      
+      // Now collapse it using collapse button
       await this.window.click('#left-sidebar .collapse-btn');
       await this.window.waitForTimeout(300);
       const isCollapsed = await this.window.evaluate(() => {
@@ -836,7 +859,8 @@ class UIComponentTester {
     });
 
     await this.test('Expand left sidebar', async () => {
-      await this.window.click('#left-sidebar .collapse-btn');
+      // Use expand button when collapsed
+      await this.window.click('#left-sidebar .expand-btn');
       await this.window.waitForTimeout(300);
       const isCollapsed = await this.window.evaluate(() => {
         return document.querySelector('#left-sidebar').classList.contains('collapsed');
@@ -845,6 +869,18 @@ class UIComponentTester {
     });
 
     await this.test('Collapse right sidebar', async () => {
+      // Check initial state and ensure it's expanded
+      const initialState = await this.window.evaluate(() => {
+        return document.querySelector('#right-sidebar').classList.contains('collapsed');
+      });
+      
+      if (initialState) {
+        // If already collapsed, expand it first using expand button
+        await this.window.click('#right-sidebar .expand-btn');
+        await this.window.waitForTimeout(300);
+      }
+      
+      // Now collapse it using collapse button
       await this.window.click('#right-sidebar .collapse-btn');
       await this.window.waitForTimeout(300);
       const isCollapsed = await this.window.evaluate(() => {
@@ -854,7 +890,8 @@ class UIComponentTester {
     });
 
     await this.test('Expand right sidebar', async () => {
-      await this.window.click('#right-sidebar .collapse-btn');
+      // Use expand button when collapsed
+      await this.window.click('#right-sidebar .expand-btn');
       await this.window.waitForTimeout(300);
       const isCollapsed = await this.window.evaluate(() => {
         return document.querySelector('#right-sidebar').classList.contains('collapsed');

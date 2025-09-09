@@ -1,0 +1,51 @@
+/* CSS Variables - Dark Theme Only */
+:root {
+  --bg-primary: #212121;
+  --bg-secondary: #2C2C2C;
+  --bg-tertiary: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-color: #555555;
+  --accent-color: #8776D5;
+  --accent-hover: #8776D5;
+  --success-color: #51cf66;
+  --error-color: #ff6b6b;
+  --warning-color: #ffd43b;
+  --shadow: 0 2px 4px rgba(0,0,0,0.3);
+  
+  /* Font Families - Centralized font management */
+  --font-family-primary: 'SF Pro Display', 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  --font-family-mono: 'SF Pro Display', 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  /* background-color: #1a1a1a !important; */
+  color: white;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  /* background-color: var(--bg-primary); */
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Main Container */
+.app-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}

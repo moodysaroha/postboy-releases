@@ -1,0 +1,447 @@
+/* Response Status Bar */
+.response-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-badge {
+  background-color: var(--success-color);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.status-badge.error {
+  background-color: var(--error-color);
+}
+
+.response-time, .response-size {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.response-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.response-timestamp {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.dropdown-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+.dropdown-btn:hover {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Response Tabs */
+.response-tabs {
+  display: flex;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.response-tab-btn {
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-right: 0.25rem;
+  position: relative;
+}
+
+.response-tab-btn.active {
+  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
+  font-weight: 500;
+}
+
+.response-tab-btn:hover:not(.active) {
+  color: var(--text-primary);
+  background-color: var(--bg-tertiary);
+}
+
+.tab-count {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.response-tab-btn.active .tab-count {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Response Content */
+.response-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.response-tab-pane {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.response-tab-pane.active {
+  display: flex;
+}
+
+
+
+/* JSON Viewer */
+.json-viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+}
+
+.json-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background-color: var(--bg-secondary);
+}
+
+.response-body {
+  flex: 1;
+  margin: 0;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  overflow: auto;
+  white-space: pre;
+  border: none;
+  min-height: 0;
+}
+
+/* Renderjson Styling */
+.renderjson-container {
+  font-family: var(--font-family-mono) !important;
+  font-size: 0.85rem !important;
+  line-height: 1.4 !important;
+}
+
+/* Ensure renderjson elements have consistent line height */
+.renderjson {
+  line-height: 1.4 !important;
+}
+
+.renderjson .syntax,
+.renderjson .string,
+.renderjson .number,
+.renderjson .boolean,
+.renderjson .key,
+.renderjson .keyword {
+  line-height: 1.4 !important;
+  display: inline !important;
+}
+
+/* Force consistent line spacing in renderjson */
+.renderjson > * {
+  display: block !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.renderjson .disclosure {
+  line-height: 1.4 !important;
+}
+
+.renderjson a {
+  text-decoration: none !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer !important;
+  font-size: 0.8rem !important;
+  margin-right: 0.25rem !important;
+  opacity: 0.7 !important;
+  transition: all 0.2s ease !important;
+}
+
+.renderjson .syntax {
+  color: var(--text-primary) !important;
+}
+
+.renderjson .string {
+  color: #FFED29 !important;
+}
+
+.renderjson .number {
+  color: #a855f7 !important;
+}
+
+.renderjson .boolean {
+  color: #3b82f6 !important;
+}
+
+.renderjson .key {
+  color: #22c55e !important;
+  font-weight: 500 !important;
+}
+
+.renderjson .keyword {
+  color: #6b7280 !important;
+}
+
+.renderjson .object.syntax,
+.renderjson .array.syntax {
+  color: var(--text-primary) !important;
+}
+
+/* JSON syntax highlighting */
+.renderjson .string {
+  color: #FFED29 !important;
+}
+
+.renderjson .key {
+  color: #22c55e !important;
+}
+
+.renderjson .number {
+  color: #a855f7 !important;
+}
+
+.renderjson .boolean {
+  color: #60a5fa !important;
+}
+
+/* Collapsed content styling */
+.renderjson .collapsed {
+  white-space: nowrap !important;
+  color: var(--text-secondary) !important;
+  font-style: italic !important;
+  opacity: 0.8 !important;
+}
+
+/* Two-Column JSON Layout */
+.json-two-column {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Line Numbers Sidebar */
+.line-numbers-sidebar {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  opacity: 0.7;
+  border-right: 1px solid var(--border-color);
+  user-select: none;
+  min-width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  overflow-y: auto;
+}
+
+.line-number-item {
+  height: calc(0.85rem * 1.4);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  margin: 0;
+  padding: 0;
+}
+
+/* JSON Content Area */
+.json-content-area {
+  flex: 1;
+  padding: 1rem;
+  overflow: auto;
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Simple line display for non-JSON */
+.simple-line {
+  display: flex;
+  align-items: flex-start;
+  min-height: calc(0.85rem * 1.4);
+  margin: 0;
+  padding: 0;
+}
+
+.simple-line .line-number {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  opacity: 0.7;
+  padding: 0 0.75rem 0 0.5rem;
+  border-right: 1px solid var(--border-color);
+  user-select: none;
+  min-width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.simple-line .line-content {
+  flex: 1;
+  padding: 0 1rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+
+
+
+/* Headers Table */
+.headers-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.table-col {
+  flex: 1;
+  padding: 0.75rem 1rem;
+}
+
+.table-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.table-row {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.table-row:hover {
+  background-color: var(--bg-secondary);
+}
+
+.table-cell {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  word-break: break-word;
+}
+
+.table-cell.name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.table-cell.value {
+  color: var(--text-secondary);
+  font-family: var(--font-family-mono);
+}
+
+/* Copy Button */
+.copy-btn {
+  margin: 1rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  align-self: flex-end;
+}
+
+.copy-btn:hover {
+  background-color: var(--accent-hover);
+}
+
+#response-headers-tab {
+  position: relative;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Console */
+.console-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  font-family: var(--font-family-mono);
+  font-size: 0.85rem;
+}
+
+.console-log {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}

@@ -3,15 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <title>PostBoy</title>
-    <link rel="stylesheet" href="index.css" />
-    <link rel="stylesheet" href="modal-styles.css" />
+    <!-- CSS Files - Load in order of dependency -->
+    <link rel="stylesheet" href="../styles/variables.css" />
+    <link rel="stylesheet" href="../styles/header.css" />
+    <link rel="stylesheet" href="../styles/sidebar.css" />
+    <link rel="stylesheet" href="../styles/main-content.css" />
+    <link rel="stylesheet" href="../styles/response.css" />
+    <link rel="stylesheet" href="../styles/utilities.css" />
+    <link rel="stylesheet" href="../styles/modal-styles.css" />
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
   </head>
   <body>
     <!-- Header -->
     <header class="app-header">
       <div class="header-left">
-        <h1><img src="assets/icons/png/32x32.png" alt="PostBoy" class="app-logo"> PostBoy</h1>
+        <h1><img src="../assets/icons/png/32x32.png" alt="PostBoy" class="app-logo"> PostBoy</h1>
       </div>
       <div class="header-right">
         <button class="shortcuts-btn" popovertarget="shortcuts-popover" title="Keyboard Shortcuts">
@@ -323,6 +329,13 @@
           </div>
         </div>
         
+        <!-- Collapsed state controls - only visible when collapsed -->
+        <div class="collapsed-controls">
+          <button class="expand-btn" data-target="right-sidebar" title="Expand Response">
+            <span class="expand-icon">▶</span>
+          </button>
+        </div>
+        
         <!-- Response Status Bar -->
         <div class="response-status-bar" id="response-status-bar" style="display: none;">
           <div class="status-info">
@@ -584,12 +597,26 @@
       </div>
     </div>
 
-    <!-- Load modules first -->
-    <script src="renderjson.js"></script>    
-    <script src="modal-manager.js"></script>
-    <script src="auth.js"></script>
-    <script src="collections.js"></script>
-    <!-- Then load main app -->
-    <script src="renderer.js"></script>
+    <!-- Load modules in dependency order -->
+    <script src="../utils/renderjson.js"></script>    
+    <script src="../renderer/modal-manager.js"></script>
+    <script src="../renderer/auth.js"></script>
+    <script src="../renderer/collections.js"></script>
+    
+    <!-- Load PostBoy core class first -->
+    <script src="../renderer/postboy-core.js"></script>
+    
+    <!-- Load all PostBoy modules -->
+    <script src="../renderer/event-listeners.js"></script>
+    <script src="../renderer/tabs-manager.js"></script>
+    <script src="../renderer/request-handler.js"></script>
+    <script src="../renderer/ui-helpers.js"></script>
+    <script src="../renderer/history-manager.js"></script>
+    <script src="../renderer/sidebar-manager.js"></script>
+    <script src="../renderer/body-editor.js"></script>
+    <script src="../renderer/curl-parser.js"></script>
+    
+    <!-- Load utilities and initialize app -->
+    <script src="../renderer/utilities.js"></script>
   </body>
 </html>

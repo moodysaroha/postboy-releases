@@ -1,0 +1,253 @@
+/* Loading State */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Only apply loading state to the actual send button, not save button */
+.loading #send-btn::after {
+  content: "";
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Visual feedback for dragging */
+body.dragging {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+/* Optimize sidebar during drag */
+.sidebar.dragging {
+  transition: none; /* Disable transitions during drag */
+  pointer-events: none; /* Prevent interference during drag */
+}
+
+.drag-handle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background: var(--text-secondary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.drag-handle:hover::before {
+  opacity: 0.6;
+}
+
+.drag-handle.dragging::before {
+  opacity: 1;
+  background: var(--accent-color);
+}
+
+/* Collapsed sidebar animations */
+.sidebar.collapsed .header-title {
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 250px;
+  }
+  
+  .sidebar.collapsed {
+    width: 35px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-container {
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  
+  .sidebar {
+    width: 100% !important;
+    height: 200px;
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .sidebar.collapsed {
+    height: 50px !important;
+    width: 100% !important;
+  }
+  
+  .drag-handle {
+    display: none;
+  }
+  
+  .main-content {
+    height: calc(100vh - 480px);
+  }
+}
+
+.cancel-btn {
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.cancel-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+.create-btn {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.create-btn:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.create-btn:disabled {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+/* Shortcuts Popover */
+.shortcuts-popover {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  padding: 0;
+  margin: 0;
+  max-width: 480px;
+  min-width: 400px;
+  font-family: var(--font-family-primary);
+}
+
+.shortcuts-btn {
+  background: transparent;
+  border: none;
+  /* color: var(--text-primary); */
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  position: relative;
+}
+
+.shortcuts-header {
+  padding: 1rem 1.25rem 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.shortcuts-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.shortcuts-content {
+  padding: 0.75rem 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.shortcuts-section {
+  margin-bottom: 1rem;
+}
+
+.shortcuts-section:last-child {
+  margin-bottom: 0;
+}
+
+.shortcuts-section h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem 0;
+  padding: 0 1.25rem;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.shortcut-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 160px;
+  color: var(--text-primary);
+}
+
+.shortcut-keys kbd {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-family-mono);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  min-width: 24px;
+  text-align: center;
+}
+
+.shortcut-description {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.tip-icon {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+}
+
+/* Popover backdrop */
+.shortcuts-popover::backdrop {
+  background-color: rgba(0, 0, 0, 0.1);
+}
