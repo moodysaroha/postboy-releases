@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostBoy Roadmap Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 250px;
+        }
+
+        .roadmap-content {
+            padding: 30px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .roadmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .roadmap-table th {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .roadmap-table th:first-child {
+            width: 40px;
+            text-align: center;
+        }
+
+        .roadmap-table th:nth-child(2) {
+            width: 25%;
+        }
+
+        .roadmap-table th:nth-child(3) {
+            width: 30%;
+        }
+
+        .roadmap-table th:nth-child(4) {
+            width: 15%;
+        }
+
+        .roadmap-table th:nth-child(5) {
+            width: 10%;
+        }
+
+        .roadmap-table th:nth-child(6) {
+            width: 8%;
+        }
+
+        .roadmap-table th:nth-child(7) {
+            width: 10%;
+        }
+
+        .roadmap-table th:nth-child(8) {
+            width: 12%;
+        }
+
+        .roadmap-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: top;
+            transition: all 0.2s;
+        }
+
+        .roadmap-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .roadmap-table tr.editing {
+            background: #fff3cd;
+            box-shadow: inset 0 0 0 2px #ffc107;
+        }
+
+        .priority-cell {
+            text-align: center;
+            padding: 8px;
+        }
+
+        .priority-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .priority-indicator:hover {
+            transform: scale(1.2);
+        }
+
+        .priority-high {
+            background: #dc3545;
+        }
+
+        .priority-medium {
+            background: #ffc107;
+        }
+
+        .priority-low {
+            background: #28a745;
+        }
+
+        .editable-cell {
+            cursor: pointer;
+            position: relative;
+            min-height: 20px;
+        }
+
+        .editable-cell:hover {
+            background: rgba(0,123,255,0.1);
+            border-radius: 4px;
+        }
+
+        .editable-cell.editing {
+            background: white;
+            border-radius: 4px;
+        }
+
+        .cell-input {
+            width: 100%;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: white;
+            outline: none;
+        }
+
+        .cell-textarea {
+            width: 100%;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: white;
+            outline: none;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .cell-select {
+            width: 100%;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: white;
+            outline: none;
+        }
+
+        .assignee-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Assignee color schemes */
+        .assignee-gaurav {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .assignee-gaurav:hover {
+            background: #ffcdd2;
+            color: #b71c1c;
+        }
+
+        .assignee-abhishek {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .assignee-abhishek:hover {
+            background: #c8e6c9;
+            color: #1b5e20;
+        }
+
+        .assignee-default-1 {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .assignee-default-1:hover {
+            background: #bbdefb;
+            color: #0d47a1;
+        }
+
+        .assignee-default-2 {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            border: 1px solid #e1bee7;
+        }
+
+        .assignee-default-2:hover {
+            background: #e1bee7;
+            color: #4a148c;
+        }
+
+        .assignee-default-3 {
+            background: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ffcc02;
+        }
+
+        .assignee-default-3:hover {
+            background: #ffcc02;
+            color: #e65100;
+        }
+
+        .assignee-default-4 {
+            background: #e0f2f1;
+            color: #00695c;
+            border: 1px solid #b2dfdb;
+        }
+
+        .assignee-default-4:hover {
+            background: #b2dfdb;
+            color: #004d40;
+        }
+
+        .assignee-default-5 {
+            background: #fce4ec;
+            color: #ad1457;
+            border: 1px solid #f8bbd9;
+        }
+
+        .assignee-default-5:hover {
+            background: #f8bbd9;
+            color: #880e4f;
+        }
+
+        .assignee-default-6 {
+            background: #e8eaf6;
+            color: #3f51b5;
+            border: 1px solid #c5cae9;
+        }
+
+        .assignee-default-6:hover {
+            background: #c5cae9;
+            color: #283593;
+        }
+
+        .category-tag {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .category-tag:hover {
+            background: #e1bee7;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            background: #6c757d;
+            color: white;
+        }
+
+        .action-btn:hover {
+            background: #545b62;
+            transform: translateY(-1px);
+        }
+
+        .action-btn.save {
+            background: #28a745;
+        }
+
+        .action-btn.save:hover {
+            background: #1e7e34;
+        }
+
+        .action-btn.cancel {
+            background: #dc3545;
+        }
+
+        .action-btn.cancel:hover {
+            background: #c82333;
+        }
+
+        .action-btn.delete {
+            background: #dc3545;
+        }
+
+        .action-btn.delete:hover {
+            background: #c82333;
+        }
+
+        .table-actions {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .row-checkbox {
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .category-header-row {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-header-row:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+
+        .category-header-row td {
+            padding: 15px 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .category-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .category-toggle-icon {
+            transition: transform 0.2s;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .category-toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .category-stats-inline {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: normal;
+        }
+
+        .category-progress {
+            width: 60px;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .category-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+
+        .category-tasks {
+            transition: all 0.3s ease;
+        }
+
+        .category-tasks.collapsed {
+            display: none;
+        }
+
+        .task-row {
+            background: white;
+        }
+
+        .task-row:nth-child(even) {
+            background: #fafbfc;
+        }
+
+        .task-row:hover {
+            background: #f8f9fa !important;
+        }
+
+        .category-summary {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .category-name {
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .category-badge {
+            background: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .category-action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            background: #6c757d;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .category-action-btn:hover {
+            background: #545b62;
+        }
+
+        .category-action-btn.add {
+            background: #28a745;
+        }
+
+        .category-action-btn.add:hover {
+            background: #1e7e34;
+        }
+
+        .assignee-legend {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-right: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .legend-gaurav {
+            background: #ffebee;
+            border-color: #ffcdd2;
+        }
+
+        .legend-abhishek {
+            background: #e8f5e8;
+            border-color: #c8e6c9;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .status-done {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-wip {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-cancelled {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .item-priority {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .priority-high {
+            background: #dc3545;
+        }
+
+        .priority-medium {
+            background: #ffc107;
+        }
+
+        .priority-low {
+            background: #28a745;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+
+        .export-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .roadmap-content {
+                padding: 20px;
+            }
+
+            .table-container {
+                overflow-x: auto;
+                margin: 0 -20px;
+                border-radius: 0;
+            }
+
+            .roadmap-table {
+                min-width: 800px;
+            }
+
+            .roadmap-table th,
+            .roadmap-table td {
+                padding: 8px 6px;
+                font-size: 0.8rem;
+            }
+
+            .roadmap-table th:nth-child(2),
+            .roadmap-table th:nth-child(3) {
+                width: 30%;
+            }
+
+            .roadmap-table th:nth-child(4) {
+                width: 20%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .action-btn {
+                padding: 3px 6px;
+                font-size: 0.7rem;
+            }
+
+            .table-actions {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+
+            .bulk-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .cell-input,
+            .cell-textarea,
+            .cell-select {
+                font-size: 0.8rem;
+                padding: 4px 6px;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .category-header-row td {
+                padding: 10px 8px;
+            }
+
+            .category-summary {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .category-toggle {
+                justify-content: flex-start;
+            }
+
+            .category-stats-inline {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .category-actions {
+                justify-content: center;
+            }
+
+            .category-action-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            .category-progress {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 PostBoy Roadmap</h1>
+            <p>Interactive Development Roadmap Editor</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-tasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completed-tasks">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="wip-tasks">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pending-tasks">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="progress-percentage">0%</div>
+                <div class="stat-label">Progress</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="addNewTask()">➕ Add Task</button>
+            <button class="btn btn-success" onclick="exportData()">📤 Export</button>
+            <button class="btn btn-secondary" onclick="importData()">📥 Import</button>
+            
+            <div class="filter-group">
+                <select class="filter-select" id="status-filter" onchange="filterTasks()">
+                    <option value="">All Status</option>
+                    <option value="done">Done</option>
+                    <option value="wip">In Progress</option>
+                    <option value="pending">Pending</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                
+                <select class="filter-select" id="category-filter" onchange="filterTasks()">
+                    <option value="">All Categories</option>
+                </select>
+                
+                <input type="text" class="search-input" id="search-input" placeholder="Search tasks..." oninput="filterTasks()">
+            </div>
+            
+            <div class="assignee-legend" id="assignee-legend">
+                <span class="legend-title">👥 Assignees:</span>
+                <div class="legend-item">
+                    <div class="legend-color legend-gaurav"></div>
+                    <span>Gaurav</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-abhishek"></div>
+                    <span>Abhishek</span>
+                </div>
+                <div class="legend-item" id="other-assignees-legend" style="display: none;">
+                    <span>+ Others (auto-colored)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="roadmap-content" id="roadmap-content">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+
+        <div class="export-section">
+            <h3>📊 Export Options</h3>
+            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" onclick="exportToMarkdown()">📝 Export to Markdown</button>
+                <button class="btn btn-secondary" onclick="exportToJSON()">📋 Export to JSON</button>
+                <button class="btn btn-secondary" onclick="exportToCSV()">📊 Export to CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing tasks -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Add New Task</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form id="task-form">
+                <div class="form-group">
+                    <label class="form-label">Task Title</label>
+                    <input type="text" class="form-input" id="task-title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="task-description"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="task-category" required>
+                        <option value="Features / Improvements">Features / Improvements</option>
+                        <option value="Chatbot Integration">Chatbot Integration</option>
+                        <option value="Issues/Pending Work">Issues/Pending Work</option>
+                        <option value="Testing">Testing</option>
+                        <option value="UI/UX">UI/UX</option>
+                        <option value="Security">Security</option>
+                        <option value="Performance">Performance</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="task-status" required>
+                        <option value="pending">Pending</option>
+                        <option value="wip">In Progress</option>
+                        <option value="done">Done</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <select class="form-select" id="task-priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Assignee</label>
+                    <input type="text" class="form-input" id="task-assignee" placeholder="Optional">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Remarks</label>
+                    <textarea class="form-textarea" id="task-remarks"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <input type="file" id="import-file" accept=".json" style="display: none;" onchange="handleImport(event)">
+
+    <script>
+        // Initial roadmap data based on the provided information
+        let roadmapData = [
+            {
+                id: 1,
+                title: "Curl support",
+                description: "Full curl command import and execution support",
+                category: "Features / Improvements",
+                status: "done",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 2,
+                title: "Import collections",
+                description: "Support for Postman 2.1 schema and custom PostBoy schema",
+                category: "Features / Improvements",
+                status: "done",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: "import/export support postman 2.1 schema also in addition to custom postboy schema"
+            },
+            {
+                id: 3,
+                title: "Export collections",
+                description: "Export collections in multiple formats",
+                category: "Features / Improvements",
+                status: "done",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 4,
+                title: "Response panel: If HTML, format, highlight, and colorize",
+                description: "Improve HTML response display with formatting and syntax highlighting",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 5,
+                title: "Response panel: Fix line number alignment and expand/collapse",
+                description: "Fix line number display issues and add expand/collapse functionality",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 6,
+                title: "UI enhancements",
+                description: "General user interface improvements and modernization",
+                category: "Features / Improvements",
+                status: "wip",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 7,
+                title: "Add Chatbot: separate Python API",
+                description: "Implement AI-powered chatbot with separate Python backend",
+                category: "Chatbot Integration",
+                status: "wip",
+                priority: "medium",
+                assignee: "Abhishek",
+                remarks: ""
+            },
+            {
+                id: 8,
+                title: "Chatbot UI embedded in app",
+                description: "Integrate chatbot interface within the main application",
+                category: "Chatbot Integration",
+                status: "pending",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 9,
+                title: "New request",
+                description: "Create new request functionality",
+                category: "Issues/Pending Work",
+                status: "done",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 10,
+                title: "Alternate place/method for saving",
+                description: "Alternative saving mechanisms and locations",
+                category: "Issues/Pending Work",
+                status: "done",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: "Saving works by Ctrl + S"
+            },
+            {
+                id: 11,
+                title: "Support for all types of body",
+                description: "Support for all major request body types",
+                category: "Testing",
+                status: "done",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 12,
+                title: "Add shortcuts",
+                description: "Keyboard shortcuts for improved productivity",
+                category: "Features / Improvements",
+                status: "done",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 13,
+                title: "Automated testing framework",
+                description: "Comprehensive automated testing infrastructure",
+                category: "Testing",
+                status: "done",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: "see tests/Readme.md for all available test cases"
+            },
+            {
+                id: 14,
+                title: "Port vanilla js to react+vite",
+                description: "Migrate from vanilla JavaScript to React with Vite build system",
+                category: "Features / Improvements",
+                status: "wip",
+                priority: "high",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 15,
+                title: "User login/registration etc.",
+                description: "User account system implementation",
+                category: "Features / Improvements",
+                status: "wip",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 16,
+                title: "RBAC",
+                description: "Role-Based Access Control system",
+                category: "Security",
+                status: "pending",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 17,
+                title: "Generate test cases automatically by swagger schema",
+                description: "Auto-generate test cases from Swagger/OpenAPI schemas",
+                category: "Testing",
+                status: "pending",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 18,
+                title: "Response Heatmaps – Show which parts of the JSON changed between two requests",
+                description: "Visual diff tool for JSON responses",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "low",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 19,
+                title: "Request Chaining with State – Let responses automatically feed into other requests",
+                description: "Workflow automation with request chaining",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 20,
+                title: "JSON search via plain english",
+                description: "Natural language search for JSON responses",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "low",
+                assignee: "Gaurav",
+                remarks: ""
+            },
+            {
+                id: 21,
+                title: "Auto Rate-Limiting Tests",
+                description: "Stress test an endpoint to see when it starts throttling",
+                category: "Testing",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 22,
+                title: "Auto Generate sample code in major languages",
+                description: "Generate code snippets in popular programming languages",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 23,
+                title: "Quick Mock Data Injection",
+                description: "Generate fake payloads (names, emails, images) with one click using a faker engine",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 24,
+                title: "Global Search Across Collections & Responses",
+                description: "Search for values/keys across all history and projects",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "high",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 25,
+                title: "Run collection (all child items)",
+                description: "Execute all requests in a collection sequentially. Execute all requests in a collection sequentially. Need to think more about it",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: "need to think more about it"
+            },
+            {
+                id: 26,
+                title: "Convert JSON into an interactive table or chart automatically",
+                description: "Transform JSON responses into visual tables or charts",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "low",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 27,
+                title: "JSON diff tool (like beyond compare for json)",
+                description: "Compare JSON responses with visual diff highlighting",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: "need to research more"
+            },
+            {
+                id: 28,
+                title: "Eye icon to show hide token/api key values",
+                description: "Toggle visibility of sensitive authentication values",
+                category: "Security",
+                status: "pending",
+                priority: "high",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 29,
+                title: "Attack Simulation",
+                description: "Simple fuzz testing: auto-inject malicious payloads (SQLi, XSS) to test backend robustness",
+                category: "Security",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 30,
+                title: "Interactive Docs Generator",
+                description: "Turn collections into shareable docs",
+                category: "Chatbot Integration",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 31,
+                title: "Real-Time Pair Testing",
+                description: "Real-Time Pair Testing – Two people can send/modify the same request live - No idea how would i handle this without cloud sync.",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "low",
+                assignee: "",
+                remarks: "No idea how would i handle this without cloud sync"
+            },
+            {
+                id: 32,
+                title: "Request-to-Curl QR Code",
+                description: "Convert a request into a QR code for quick sharing",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "low",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 33,
+                title: "Voice-Controlled Requests",
+                description: "Send a GET to /users with ID=42 using voice commands",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "low",
+                assignee: "",
+                remarks: ""
+            },
+            {
+                id: 34,
+                title: "Offline API Replay",
+                description: "Cache responses and let devs simulate the backend where no internet access",
+                category: "Features / Improvements",
+                status: "pending",
+                priority: "medium",
+                assignee: "",
+                remarks: ""
+            }
+        ];
+
+        let currentEditingId = null;
+        let filteredData = [...roadmapData];
+        let collapsedCategories = new Set(); // Track collapsed categories
+
+        // Load data from localStorage if available
+        function loadData() {
+            const saved = localStorage.getItem('postboy-roadmap');
+            if (saved) {
+                try {
+                    roadmapData = JSON.parse(saved);
+                    filteredData = [...roadmapData];
+                } catch (e) {
+                    console.error('Failed to load saved data:', e);
+                }
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('postboy-roadmap', JSON.stringify(roadmapData));
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = roadmapData.length;
+            const completed = roadmapData.filter(item => item.status === 'done').length;
+            const wip = roadmapData.filter(item => item.status === 'wip').length;
+            const pending = roadmapData.filter(item => item.status === 'pending').length;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('total-tasks').textContent = total;
+            document.getElementById('completed-tasks').textContent = completed;
+            document.getElementById('wip-tasks').textContent = wip;
+            document.getElementById('pending-tasks').textContent = pending;
+            document.getElementById('progress-percentage').textContent = progress + '%';
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+
+        // Group data by category
+        function groupByCategory(data) {
+            const grouped = {};
+            data.forEach(item => {
+                if (!grouped[item.category]) {
+                    grouped[item.category] = [];
+                }
+                grouped[item.category].push(item);
+            });
+            return grouped;
+        }
+
+        // Render the roadmap
+        function renderRoadmap() {
+            const container = document.getElementById('roadmap-content');
+            
+            if (filteredData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No tasks found</h3>
+                        <p>Try adjusting your filters or add a new task to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grouped = groupByCategory(filteredData);
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'table-container';
+            
+            let tableHTML = `
+                <table class="roadmap-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="select-all" onchange="toggleSelectAll()" class="row-checkbox">
+                            </th>
+                            <th>Task</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Assignee</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Render each category group
+            Object.keys(grouped).forEach(category => {
+                const items = grouped[category];
+                const completed = items.filter(item => item.status === 'done').length;
+                const total = items.length;
+                const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+                const categoryId = category.replace(/[^a-zA-Z0-9]/g, '');
+                const isCollapsed = collapsedCategories.has(category);
+
+                // Category header row
+                tableHTML += `
+                    <tr class="category-header-row" onclick="toggleCategoryGroup('${category}')">
+                        <td colspan="8">
+                            <div class="category-summary">
+                                <div class="category-toggle">
+                                    <span class="category-toggle-icon ${isCollapsed ? 'collapsed' : ''}">▼</span>
+                                    <span class="category-name">${category}</span>
+                                    <span class="category-badge">${total}</span>
+                                </div>
+                                <div class="category-stats-inline">
+                                    <span>${completed}/${total} completed</span>
+                                    <span>${progress}%</span>
+                                    <div class="category-progress">
+                                        <div class="category-progress-fill" style="width: ${progress}%"></div>
+                                    </div>
+                                </div>
+                                <div class="category-actions">
+                                    <button class="category-action-btn add" onclick="event.stopPropagation(); addTaskToCategory('${category}')" title="Add task to this category">+ Add</button>
+                                    <button class="category-action-btn" onclick="event.stopPropagation(); collapseCategoryTasks('${category}')" title="Collapse all tasks">${isCollapsed ? 'Expand' : 'Collapse'}</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                // Category tasks
+                const tasksHTML = items.map(item => renderTableRow(item, true)).join('');
+                tableHTML += `<tbody class="category-tasks ${isCollapsed ? 'collapsed' : ''}" data-category="${category}">${tasksHTML}</tbody>`;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+                <div class="table-actions">
+                    <div class="bulk-actions">
+                        <button class="btn btn-secondary" onclick="bulkStatusUpdate('done')" id="bulk-done">Mark Selected as Done</button>
+                        <button class="btn btn-secondary" onclick="bulkStatusUpdate('wip')" id="bulk-wip">Mark Selected as WIP</button>
+                        <button class="btn btn-secondary" onclick="bulkDelete()" id="bulk-delete">Delete Selected</button>
+                        <button class="btn btn-secondary" onclick="expandAllCategories()">Expand All</button>
+                        <button class="btn btn-secondary" onclick="collapseAllCategories()">Collapse All</button>
+                    </div>
+                    <div>
+                        <span id="selected-count">0 selected</span>
+                    </div>
+                </div>
+            `;
+            
+            tableContainer.innerHTML = tableHTML;
+            container.innerHTML = '';
+            container.appendChild(tableContainer);
+
+            // Update category filter options
+            updateCategoryFilter();
+            updateAssigneeLegend();
+        }
+
+        // Render table row
+        function renderTableRow(item, isNested = false) {
+            const statusClass = `status-${item.status}`;
+            const priorityClass = `priority-${item.priority}`;
+            
+            return `
+                <tr data-id="${item.id}" class="task-row">
+                    <td class="priority-cell">
+                        <input type="checkbox" class="row-checkbox" data-id="${item.id}" onchange="updateSelectedCount()">
+                    </td>
+                    <td class="editable-cell" data-field="title" onclick="startEdit(${item.id}, 'title')">${item.title}</td>
+                    <td class="editable-cell" data-field="description" onclick="startEdit(${item.id}, 'description')">${item.description || '<em>No description</em>'}</td>
+                    <td class="editable-cell" data-field="category" onclick="startEdit(${item.id}, 'category')">
+                        <span class="category-tag">${item.category}</span>
+                    </td>
+                    <td class="editable-cell" data-field="status" onclick="startEdit(${item.id}, 'status')">
+                        <div class="status-badge ${statusClass}">${item.status.toUpperCase()}</div>
+                    </td>
+                    <td class="priority-cell">
+                        <div class="priority-indicator ${priorityClass}" onclick="cyclePriority(${item.id})" title="${item.priority} priority"></div>
+                    </td>
+                    <td class="editable-cell" data-field="assignee" onclick="startEdit(${item.id}, 'assignee')">
+                        ${item.assignee ? `<span class="assignee-tag ${getAssigneeColorClass(item.assignee)}">${item.assignee}</span>` : '<em>Unassigned</em>'}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="duplicateTask(${item.id})" title="Duplicate">📋</button>
+                            <button class="action-btn delete" onclick="deleteTask(${item.id})" title="Delete">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Update category filter dropdown
+        function updateCategoryFilter() {
+            const select = document.getElementById('category-filter');
+            const categories = [...new Set(roadmapData.map(item => item.category))];
+            
+            select.innerHTML = '<option value="">All Categories</option>';
+            categories.forEach(category => {
+                select.innerHTML += `<option value="${category}">${category}</option>`;
+            });
+        }
+
+        // Update assignee legend
+        function updateAssigneeLegend() {
+            const assignees = [...new Set(roadmapData.map(item => item.assignee).filter(a => a && a.trim()))];
+            const legend = document.getElementById('assignee-legend');
+            const otherAssigneesLegend = document.getElementById('other-assignees-legend');
+            
+            // Remove any existing other assignee legend items
+            const existingOthers = legend.querySelectorAll('.legend-other');
+            existingOthers.forEach(item => item.remove());
+            
+            // Check if there are assignees other than Gaurav and Abhishek
+            const otherAssignees = assignees.filter(name => 
+                name.toLowerCase() !== 'gaurav' && name.toLowerCase() !== 'abhishek'
+            );
+            
+            if (otherAssignees.length > 0) {
+                // Add specific legend items for other assignees
+                otherAssignees.forEach(assignee => {
+                    const colorClass = getAssigneeColorClass(assignee);
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item legend-other';
+                    
+                    // Get the background color from the CSS class
+                    const tempElement = document.createElement('span');
+                    tempElement.className = `assignee-tag ${colorClass}`;
+                    tempElement.style.visibility = 'hidden';
+                    tempElement.style.position = 'absolute';
+                    document.body.appendChild(tempElement);
+                    
+                    const computedStyle = window.getComputedStyle(tempElement);
+                    const backgroundColor = computedStyle.backgroundColor;
+                    const borderColor = computedStyle.borderColor;
+                    
+                    document.body.removeChild(tempElement);
+                    
+                    legendItem.innerHTML = `
+                        <div class="legend-color" style="background: ${backgroundColor}; border-color: ${borderColor};"></div>
+                        <span>${assignee}</span>
+                    `;
+                    legend.insertBefore(legendItem, otherAssigneesLegend);
+                });
+                
+                otherAssigneesLegend.style.display = 'none';
+            } else {
+                otherAssigneesLegend.style.display = otherAssignees.length > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Filter tasks
+        function filterTasks() {
+            const statusFilter = document.getElementById('status-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+            filteredData = roadmapData.filter(item => {
+                const matchesStatus = !statusFilter || item.status === statusFilter;
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                const matchesSearch = !searchTerm || 
+                    item.title.toLowerCase().includes(searchTerm) ||
+                    item.description.toLowerCase().includes(searchTerm) ||
+                    (item.assignee && item.assignee.toLowerCase().includes(searchTerm));
+
+                return matchesStatus && matchesCategory && matchesSearch;
+            });
+
+            renderRoadmap();
+        }
+
+
+        // Inline editing variables
+        let currentEditingCell = null;
+        let originalValue = null;
+
+        // Start inline editing
+        function startEdit(id, field) {
+            // Cancel any existing edit
+            if (currentEditingCell) {
+                cancelEdit();
+            }
+
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            const cell = row.querySelector(`[data-field="${field}"]`);
+            const item = roadmapData.find(item => item.id === id);
+            
+            if (!item || !cell) return;
+
+            currentEditingCell = { id, field, cell, row };
+            originalValue = item[field] || '';
+            
+            cell.classList.add('editing');
+            row.classList.add('editing');
+            
+            let inputElement;
+            
+            switch (field) {
+                case 'title':
+                    inputElement = document.createElement('input');
+                    inputElement.className = 'cell-input';
+                    inputElement.value = originalValue;
+                    inputElement.type = 'text';
+                    break;
+                    
+                case 'description':
+                    inputElement = document.createElement('textarea');
+                    inputElement.className = 'cell-textarea';
+                    inputElement.value = originalValue;
+                    break;
+                    
+                case 'category':
+                    inputElement = document.createElement('select');
+                    inputElement.className = 'cell-select';
+                    const categories = ['Features / Improvements', 'Chatbot Integration', 'Issues/Pending Work', 'Testing', 'UI/UX', 'Security', 'Performance'];
+                    categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat;
+                        option.textContent = cat;
+                        option.selected = cat === originalValue;
+                        inputElement.appendChild(option);
+                    });
+                    break;
+                    
+                case 'status':
+                    inputElement = document.createElement('select');
+                    inputElement.className = 'cell-select';
+                    const statuses = ['pending', 'wip', 'done', 'cancelled'];
+                    statuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = status.toUpperCase();
+                        option.selected = status === originalValue;
+                        inputElement.appendChild(option);
+                    });
+                    break;
+                    
+                case 'assignee':
+                    inputElement = document.createElement('input');
+                    inputElement.className = 'cell-input';
+                    inputElement.value = originalValue;
+                    inputElement.type = 'text';
+                    inputElement.placeholder = 'Enter assignee name';
+                    break;
+                    
+                default:
+                    return;
+            }
+            
+            // Add event listeners
+            inputElement.addEventListener('keydown', handleEditKeydown);
+            inputElement.addEventListener('blur', saveEdit);
+            
+            // Replace cell content
+            cell.innerHTML = '';
+            cell.appendChild(inputElement);
+            
+            // Add save/cancel buttons
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.marginTop = '5px';
+            buttonContainer.innerHTML = `
+                <button class="action-btn save" onclick="saveEdit()">✓</button>
+                <button class="action-btn cancel" onclick="cancelEdit()">✕</button>
+            `;
+            cell.appendChild(buttonContainer);
+            
+            // Focus the input
+            inputElement.focus();
+            if (inputElement.select) inputElement.select();
+        }
+
+        // Handle keyboard events during editing
+        function handleEditKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                saveEdit();
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                cancelEdit();
+            }
+        }
+
+        // Save the edit
+        function saveEdit() {
+            if (!currentEditingCell) return;
+            
+            const { id, field, cell, row } = currentEditingCell;
+            const inputElement = cell.querySelector('input, textarea, select');
+            
+            if (!inputElement) return;
+            
+            const newValue = inputElement.value.trim();
+            const item = roadmapData.find(item => item.id === id);
+            
+            if (item) {
+                item[field] = newValue;
+                saveData();
+                updateStats();
+            }
+            
+            // Clear editing state
+            cell.classList.remove('editing');
+            row.classList.remove('editing');
+            currentEditingCell = null;
+            originalValue = null;
+            
+            // Re-render to show updated value
+            renderRoadmap();
+        }
+
+        // Cancel the edit
+        function cancelEdit() {
+            if (!currentEditingCell) return;
+            
+            const { cell, row } = currentEditingCell;
+            
+            // Clear editing state
+            cell.classList.remove('editing');
+            row.classList.remove('editing');
+            currentEditingCell = null;
+            originalValue = null;
+            
+            // Re-render to restore original value
+            renderRoadmap();
+        }
+
+        // Cycle through priority options
+        function cyclePriority(id) {
+            const item = roadmapData.find(item => item.id === id);
+            if (!item) return;
+
+            const priorities = ['low', 'medium', 'high'];
+            const currentIndex = priorities.indexOf(item.priority);
+            const nextIndex = (currentIndex + 1) % priorities.length;
+            
+            item.priority = priorities[nextIndex];
+            saveData();
+            updateStats();
+            renderRoadmap();
+        }
+
+        // Cycle through status options
+        function cycleStatus(id) {
+            const item = roadmapData.find(item => item.id === id);
+            if (!item) return;
+
+            const statuses = ['pending', 'wip', 'done', 'cancelled'];
+            const currentIndex = statuses.indexOf(item.status);
+            const nextIndex = (currentIndex + 1) % statuses.length;
+            
+            item.status = statuses[nextIndex];
+            saveData();
+            updateStats();
+            renderRoadmap();
+        }
+
+        // Duplicate task
+        function duplicateTask(id) {
+            const item = roadmapData.find(item => item.id === id);
+            if (!item) return;
+            
+            const newId = Math.max(...roadmapData.map(item => item.id), 0) + 1;
+            const duplicatedItem = {
+                ...item,
+                id: newId,
+                title: item.title + ' (Copy)',
+                status: 'pending'
+            };
+            
+            roadmapData.push(duplicatedItem);
+            saveData();
+            updateStats();
+            filterTasks();
+        }
+
+        // Bulk operations
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.row-checkbox[data-id]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+            
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.row-checkbox[data-id]:checked');
+            const count = checkboxes.length;
+            document.getElementById('selected-count').textContent = `${count} selected`;
+            
+            // Update select all checkbox
+            const selectAll = document.getElementById('select-all');
+            const allCheckboxes = document.querySelectorAll('.row-checkbox[data-id]');
+            selectAll.checked = count > 0 && count === allCheckboxes.length;
+            selectAll.indeterminate = count > 0 && count < allCheckboxes.length;
+        }
+
+        function getSelectedIds() {
+            const checkboxes = document.querySelectorAll('.row-checkbox[data-id]:checked');
+            return Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+        }
+
+        function bulkStatusUpdate(status) {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                alert('Please select at least one task.');
+                return;
+            }
+            
+            selectedIds.forEach(id => {
+                const item = roadmapData.find(item => item.id === id);
+                if (item) {
+                    item.status = status;
+                }
+            });
+            
+            saveData();
+            updateStats();
+            renderRoadmap();
+        }
+
+        function bulkDelete() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                alert('Please select at least one task.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete ${selectedIds.length} task(s)?`)) {
+                roadmapData = roadmapData.filter(item => !selectedIds.includes(item.id));
+                filteredData = filteredData.filter(item => !selectedIds.includes(item.id));
+                saveData();
+                updateStats();
+                renderRoadmap();
+            }
+        }
+
+        // Category management functions
+        function toggleCategoryGroup(category) {
+            if (collapsedCategories.has(category)) {
+                collapsedCategories.delete(category);
+            } else {
+                collapsedCategories.add(category);
+            }
+            
+            // Update the UI immediately
+            const categoryTasks = document.querySelector(`tbody[data-category="${category}"]`);
+            const toggleIcon = document.querySelector(`tr[onclick*="${category}"] .category-toggle-icon`);
+            
+            if (categoryTasks) {
+                if (collapsedCategories.has(category)) {
+                    categoryTasks.classList.add('collapsed');
+                    toggleIcon.classList.add('collapsed');
+                } else {
+                    categoryTasks.classList.remove('collapsed');
+                    toggleIcon.classList.remove('collapsed');
+                }
+            }
+            
+            // Save collapsed state
+            localStorage.setItem('postboy-collapsed-categories', JSON.stringify([...collapsedCategories]));
+        }
+
+        function collapseCategoryTasks(category) {
+            toggleCategoryGroup(category);
+        }
+
+        function expandAllCategories() {
+            collapsedCategories.clear();
+            localStorage.setItem('postboy-collapsed-categories', JSON.stringify([]));
+            renderRoadmap();
+        }
+
+        function collapseAllCategories() {
+            const categories = [...new Set(roadmapData.map(item => item.category))];
+            collapsedCategories = new Set(categories);
+            localStorage.setItem('postboy-collapsed-categories', JSON.stringify([...collapsedCategories]));
+            renderRoadmap();
+        }
+
+        function addTaskToCategory(category) {
+            currentEditingId = null;
+            document.getElementById('modal-title').textContent = 'Add New Task';
+            document.getElementById('task-form').reset();
+            document.getElementById('task-category').value = category;
+            document.getElementById('task-modal').style.display = 'block';
+        }
+
+        // Load collapsed categories from localStorage
+        function loadCollapsedCategories() {
+            const saved = localStorage.getItem('postboy-collapsed-categories');
+            if (saved) {
+                try {
+                    const collapsed = JSON.parse(saved);
+                    collapsedCategories = new Set(collapsed);
+                } catch (e) {
+                    console.error('Failed to load collapsed categories:', e);
+                }
+            }
+        }
+
+        // Get assignee color class
+        function getAssigneeColorClass(assignee) {
+            if (!assignee) return '';
+            
+            const name = assignee.toLowerCase().trim();
+            
+            // Specific assignee colors
+            if (name === 'gaurav') return 'assignee-gaurav';
+            if (name === 'abhishek') return 'assignee-abhishek';
+            
+            // Generate consistent color for other assignees based on name hash
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                const char = name.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            
+            const colorIndex = Math.abs(hash) % 6 + 1; // Use colors 1-6
+            return `assignee-default-${colorIndex}`;
+        }
+
+        // Add new task
+        function addNewTask() {
+            currentEditingId = null;
+            document.getElementById('modal-title').textContent = 'Add New Task';
+            document.getElementById('task-form').reset();
+            document.getElementById('task-modal').style.display = 'block';
+        }
+
+        // Edit existing task
+        function editTask(id) {
+            const item = roadmapData.find(item => item.id === id);
+            if (!item) return;
+
+            currentEditingId = id;
+            document.getElementById('modal-title').textContent = 'Edit Task';
+            document.getElementById('task-title').value = item.title;
+            document.getElementById('task-description').value = item.description || '';
+            document.getElementById('task-category').value = item.category;
+            document.getElementById('task-status').value = item.status;
+            document.getElementById('task-priority').value = item.priority;
+            document.getElementById('task-assignee').value = item.assignee || '';
+            document.getElementById('task-remarks').value = item.remarks || '';
+            
+            document.getElementById('task-modal').style.display = 'block';
+        }
+
+        // Delete task
+        function deleteTask(id) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                roadmapData = roadmapData.filter(item => item.id !== id);
+                filteredData = filteredData.filter(item => item.id !== id);
+                saveData();
+                updateStats();
+                renderRoadmap();
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('task-modal').style.display = 'none';
+            currentEditingId = null;
+        }
+
+        // Handle form submission
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('task-title').value,
+                description: document.getElementById('task-description').value,
+                category: document.getElementById('task-category').value,
+                status: document.getElementById('task-status').value,
+                priority: document.getElementById('task-priority').value,
+                assignee: document.getElementById('task-assignee').value,
+                remarks: document.getElementById('task-remarks').value
+            };
+
+            if (currentEditingId) {
+                // Edit existing task
+                const item = roadmapData.find(item => item.id === currentEditingId);
+                if (item) {
+                    Object.assign(item, formData);
+                }
+            } else {
+                // Add new task
+                const newId = Math.max(...roadmapData.map(item => item.id), 0) + 1;
+                roadmapData.push({
+                    id: newId,
+                    ...formData
+                });
+            }
+
+            saveData();
+            updateStats();
+            filterTasks(); // This will re-render with current filters
+            closeModal();
+        });
+
+
+        // Export functions
+        function exportData() {
+            const dataStr = JSON.stringify(roadmapData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'postboy-roadmap.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToMarkdown() {
+            let markdown = '# PostBoy Development Roadmap\n\n';
+            
+            const grouped = groupByCategory(roadmapData);
+            Object.keys(grouped).forEach(category => {
+                markdown += `## ${category}\n\n`;
+                grouped[category].forEach(item => {
+                    const statusEmoji = {
+                        'done': '✅',
+                        'wip': '🔄',
+                        'pending': '📋',
+                        'cancelled': '❌'
+                    };
+                    
+                    markdown += `- ${statusEmoji[item.status]} **${item.title}**`;
+                    if (item.assignee) markdown += ` (${item.assignee})`;
+                    markdown += '\n';
+                    if (item.description) markdown += `  - ${item.description}\n`;
+                    if (item.remarks) markdown += `  - *Remarks: ${item.remarks}*\n`;
+                    markdown += '\n';
+                });
+            });
+
+            const blob = new Blob([markdown], {type: 'text/markdown'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'postboy-roadmap.md';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToCSV() {
+            const headers = ['Title', 'Description', 'Category', 'Status', 'Priority', 'Assignee', 'Remarks'];
+            let csv = headers.join(',') + '\n';
+            
+            roadmapData.forEach(item => {
+                const row = [
+                    `"${item.title}"`,
+                    `"${item.description || ''}"`,
+                    `"${item.category}"`,
+                    `"${item.status}"`,
+                    `"${item.priority}"`,
+                    `"${item.assignee || ''}"`,
+                    `"${item.remarks || ''}"`
+                ];
+                csv += row.join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'postboy-roadmap.csv';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            document.getElementById('import-file').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported) && imported.length > 0) {
+                        if (confirm('This will replace all current data. Continue?')) {
+                            roadmapData = imported;
+                            filteredData = [...roadmapData];
+                            saveData();
+                            updateStats();
+                            renderRoadmap();
+                            alert('Data imported successfully!');
+                        }
+                    } else {
+                        alert('Invalid file format. Please select a valid JSON file.');
+                    }
+                } catch (error) {
+                    alert('Error reading file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('task-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize the application
+        function init() {
+            loadData();
+            loadCollapsedCategories();
+            updateStats();
+            renderRoadmap();
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
