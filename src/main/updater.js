@@ -142,12 +142,19 @@ class AppUpdater {
     autoUpdater.setFeedURL({
       provider: 'github',
       owner: 'moodysaroha',
-      repo: 'postboy',
+      repo: 'postboy-releases',
       private: false,
       vPrefixedTagName: true
     });
     
     console.log('Using manual GitHub configuration for updates');
+    console.log('Update feed URL configured for:', {
+      provider: 'github',
+      owner: 'moodysaroha',
+      repo: 'postboy-releases',
+      private: false,
+      vPrefixedTagName: true
+    });
 
     this.setupEventHandlers();
     
@@ -268,10 +275,18 @@ class AppUpdater {
       // Parse the error message for better user feedback
       let userMessage = error.message;
       if (error.message.includes('404') || error.message.includes('Not Found')) {
-        userMessage = 'Cannot access the update server.' + error.message;
+        userMessage = 'Cannot find releases in postboy-releases repository. Please ensure releases exist at: https://github.com/moodysaroha/postboy-releases/releases';
       } else if (error.message.includes('ENOTFOUND') || error.message.includes('ETIMEDOUT')) {
         userMessage = 'Cannot reach the update server. Please check your internet connection and try again.';
+      } else if (error.message.includes('No published versions')) {
+        userMessage = 'No published releases found in postboy-releases repository. Please create a release first.';
       }
+      
+      console.error('Detailed error information:', {
+        message: error.message,
+        stack: error.stack,
+        feedURL: 'https://github.com/moodysaroha/postboy-releases/releases'
+      });
       
       // Only show error dialog if this was a manual check
       if (this.isManualCheck) {

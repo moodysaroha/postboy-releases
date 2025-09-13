@@ -9,6 +9,8 @@ class PostBoy {
     this.dragTargetElement = null; // Cache the DOM element
     this.dragAnimationFrame = null; // For requestAnimationFrame
     this.lastDragEvent = null; // Cache last mouse event
+    this.startX = null; // Initial mouse X position for drag
+    this.startWidth = null; // Initial sidebar width for drag
     this.lastResponseData = null; // Store the last response for saving to collections
     this.lastResponseTimestamp = null; // Track when the last response was received
     this.timestampUpdateInterval = null; // Interval for updating timestamp display

@@ -228,3 +228,143 @@ PostBoy.prototype.handleBodyTypeShortcut = function(key) {
     }, 50);
   }
 };
+
+PostBoy.prototype.setupHelpShortcut = function() {
+  let helpSequence = '';
+  let helpTimeout = null;
+  
+  document.addEventListener('keydown', (e) => {
+    if (helpTimeout) {
+      clearTimeout(helpTimeout);
+    }
+    
+    // Only process single character keys (not modifiers, arrows, etc.)
+    if (e.key && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      const char = e.key.toUpperCase();
+      helpSequence += char;
+      
+      if (helpSequence.endsWith('PPPP')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // If we're in a text input, handle it specially
+        const isInTextInput = e.target && (
+          e.target.tagName === 'INPUT' || 
+          e.target.tagName === 'TEXTAREA' || 
+          e.target.contentEditable === 'true'
+        );
+        
+        if (isInTextInput) {
+          // Remove "PPP" that might have been typed before the prevented "P"
+          setTimeout(() => {
+            const currentValue = e.target.value || e.target.textContent || '';
+            if (currentValue.toUpperCase().endsWith('PPP')) {
+              if (e.target.value !== undefined) {
+                e.target.value = currentValue.slice(0, -3);
+              } else if (e.target.textContent !== undefined) {
+                e.target.textContent = currentValue.slice(0, -3);
+              }
+            }
+          }, 0);
+        }
+        
+        this.openShortcutsPopover();
+        helpSequence = '';
+        return;
+      }
+      
+      // Keep last 10 chars to prevent memory issues
+      if (helpSequence.length > 10) {
+        helpSequence = helpSequence.slice(-10);
+      }
+    }
+    
+    // Reset after 2 seconds of inactivity
+    helpTimeout = setTimeout(() => {
+      helpSequence = '';
+    }, 2000);
+  });
+};
+
+PostBoy.prototype.openShortcutsPopover = function() {
+  const keyboardIcon = document.querySelector('.shortcuts-btn');
+  const popover = document.getElementById('shortcuts-popover');
+  
+  if (keyboardIcon && popover) {
+    // Show the popover
+    try {
+      popover.showPopover();
+    } catch (error) {
+      console.error('Error calling showPopover:', error);
+      // Fallback: just make it visible
+      popover.style.display = 'block';
+      popover.style.visibility = 'visible';
+    }
+    
+    // Position it properly
+    const iconRect = keyboardIcon.getBoundingClientRect();
+    const popoverRect = popover.getBoundingClientRect();
+    
+    // Calculate position below the icon
+    let top = iconRect.bottom + 8;
+    let left = iconRect.left + (iconRect.width / 2) - (popoverRect.width / 2);
+    
+    // Ensure popover stays within viewport
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Adjust horizontal position if off-screen
+    if (left < 10) {
+      left = 10;
+    } else if (left + popoverRect.width > viewportWidth - 10) {
+      left = viewportWidth - popoverRect.width - 10;
+    }
+    
+    // Adjust vertical position if off-screen
+    if (top + popoverRect.height > viewportHeight - 10) {
+      top = iconRect.top - popoverRect.height - 8;
+    }
+    
+    // Apply positioning
+    popover.style.top = `${top}px`;
+    popover.style.left = `${left}px`;
+  }
+};
+
+PostBoy.prototype.setupShortcutsPopover = function() {
+  const popover = document.getElementById('shortcuts-popover');
+  const button = document.querySelector('.shortcuts-btn');
+  
+  if (!popover || !button) return;
+  
+  // Position the popover below the button when it opens
+  popover.addEventListener('beforetoggle', (e) => {
+    if (e.newState === 'open') {
+      // Small delay to ensure popover is rendered and has dimensions
+      setTimeout(() => {
+        const buttonRect = button.getBoundingClientRect();
+        const popoverRect = popover.getBoundingClientRect();
+        
+        // Position below the button with some margin
+        const top = buttonRect.bottom + 8;
+        
+        // Try to right-align with button, but ensure it stays on screen
+        let left = buttonRect.right - popoverRect.width;
+        
+        // Check if it goes off the right edge
+        if (left + popoverRect.width > window.innerWidth - 16) {
+          left = window.innerWidth - popoverRect.width - 16;
+        }
+        
+        // Check if it goes off the left edge
+        if (left < 16) {
+          left = 16;
+        }
+        
+        popover.style.position = 'fixed';
+        popover.style.top = `${top}px`;
+        popover.style.left = `${left}px`;
+      }, 0);
+    }
+  });
+};

@@ -32,10 +32,11 @@ PostBoy.prototype.toggleSidebar = function(sidebarId) {
 };
 
 PostBoy.prototype.setupDragResize = function() {
-  const handles = document.querySelectorAll('.drag-handle');
+  const dragHandles = document.querySelectorAll('.drag-handle');
   
-  handles.forEach(handle => {
+  dragHandles.forEach(handle => {
     handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
       this.startDrag(handle, e);
     });
   });
@@ -43,34 +44,38 @@ PostBoy.prototype.setupDragResize = function() {
   // Global mouse events for dragging
   document.addEventListener('mousemove', (e) => {
     if (this.isDragging) {
-      e.preventDefault();
+      // Store the event and request animation frame
       this.lastDragEvent = e;
-      
       if (!this.dragAnimationFrame) {
         this.dragAnimationFrame = requestAnimationFrame(() => {
           this.handleDragOptimized();
         });
       }
     }
-  });
+  }, { passive: true }); // Passive listener for better performance
 
   document.addEventListener('mouseup', () => {
-    if (this.isDragging) {
-      this.endDrag();
-    }
+    this.endDrag();
   });
 };
 
 PostBoy.prototype.startDrag = function(handle, event) {
   this.isDragging = true;
-  this.currentDragTarget = handle.classList.contains('drag-handle-right') ? 'left-sidebar' : 'right-sidebar';
+  this.currentDragTarget = handle.getAttribute('data-target');
   this.dragTargetElement = document.getElementById(this.currentDragTarget);
-  this.lastDragEvent = event;
   
-  document.body.classList.add('dragging');
-  if (this.dragTargetElement) {
-    this.dragTargetElement.classList.add('dragging');
-  }
+  // Store initial state for calculations
+  this.startX = event.clientX;
+  this.startWidth = this.dragTargetElement.offsetWidth;
+  
+  // Add dragging classes and cursor
+  handle.classList.add('dragging');
+  this.dragTargetElement.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+  
+  // Add will-change for GPU acceleration
+  this.dragTargetElement.style.willChange = 'width';
   
   event.preventDefault();
 };
@@ -80,31 +85,47 @@ PostBoy.prototype.handleDragOptimized = function() {
     this.dragAnimationFrame = null;
     return;
   }
-
-  const containerRect = document.querySelector('.app-container').getBoundingClientRect();
   
+  const deltaX = this.lastDragEvent.clientX - this.startX;
+  
+  let newWidth;
   if (this.currentDragTarget === 'left-sidebar') {
-    const newWidth = this.lastDragEvent.clientX - containerRect.left;
-    const minWidth = 200;
-    const maxWidth = 600;
-    const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-    this.dragTargetElement.style.width = `${clampedWidth}px`;
+    newWidth = this.startWidth + deltaX;
+  } else if (this.currentDragTarget === 'right-sidebar') {
+    newWidth = this.startWidth - deltaX;
   }
   
+  // Apply constraints
+  newWidth = Math.max(200, Math.min(600, newWidth));
+  
+  // Update width
+  this.dragTargetElement.style.width = newWidth + 'px';
+  
+  // Clear the animation frame
   this.dragAnimationFrame = null;
 };
 
 PostBoy.prototype.endDrag = function() {
-  this.isDragging = false;
+  if (!this.isDragging) return;
   
+  // Cancel any pending animation frame
   if (this.dragAnimationFrame) {
     cancelAnimationFrame(this.dragAnimationFrame);
     this.dragAnimationFrame = null;
   }
   
-  document.body.classList.remove('dragging');
+  this.isDragging = false;
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
   
+  // Remove dragging class from all handles
+  document.querySelectorAll('.drag-handle').forEach(handle => {
+    handle.classList.remove('dragging');
+  });
+  
+  // Clean up GPU acceleration hint and dragging class
   if (this.dragTargetElement) {
+    this.dragTargetElement.style.willChange = 'auto';
     this.dragTargetElement.classList.remove('dragging');
   }
   
@@ -113,6 +134,8 @@ PostBoy.prototype.endDrag = function() {
   this.currentDragTarget = null;
   this.dragTargetElement = null;
   this.lastDragEvent = null;
+  this.startX = null;
+  this.startWidth = null;
 };
 
 PostBoy.prototype.restoreSidebarStates = function() {
