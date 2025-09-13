@@ -19,22 +19,11 @@ module.exports = {
     ]
   },
   rebuildConfig: {},
-  publishers: [
-    {
-      name: '@electron-forge/publisher-github',
-      config: {
-        repository: {
-          owner: 'moodysaroha',
-          name: 'postboy'
-        },
-        prerelease: false,
-        draft: false
-      }
-    }
-  ],
+  // Publishers removed - releases are handled by GitHub Actions in postboy-releases repo
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
+      platforms: ['win32'],
       config: {
         name: 'postboy',
         title: 'PostBoy',
@@ -50,19 +39,7 @@ module.exports = {
         // The auto-updater in the app will handle updates with proper authentication
         remoteReleases: false
       },
-    },
-    {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
-    },
-    {
-      name: '@electron-forge/maker-deb',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {},
-    },
+    }
   ],
   plugins: [
     {
