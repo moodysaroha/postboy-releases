@@ -230,10 +230,10 @@ $nupkgFile = Get-ChildItem $squirrelPath -Filter "*.nupkg" | Select-Object -Firs
 $releasesFile = Get-ChildItem $squirrelPath -Filter "RELEASES" | Select-Object -First 1
 
 if ($setupExe -and $nupkgFile -and $releasesFile) {
-    # Calculate file hashes
-    $setupHash = (Get-FileHash $setupExe.FullName -Algorithm SHA512).Hash
-    $nupkgHash = (Get-FileHash $nupkgFile.FullName -Algorithm SHA512).Hash
-    $releasesHash = (Get-FileHash $releasesFile.FullName -Algorithm SHA512).Hash
+    # Calculate file hashes (convert to lowercase for electron-updater compatibility)
+    $setupHash = (Get-FileHash $setupExe.FullName -Algorithm SHA512).Hash.ToLower()
+    $nupkgHash = (Get-FileHash $nupkgFile.FullName -Algorithm SHA512).Hash.ToLower()
+    $releasesHash = (Get-FileHash $releasesFile.FullName -Algorithm SHA512).Hash.ToLower()
     
     # Get file sizes
     $setupSize = $setupExe.Length

@@ -197,6 +197,39 @@ class AppUpdater {
       });
     }
     
+    // In development mode, ensure app-update.yml exists where electron-updater expects it during download
+    // Check if we're in development by looking at the path structure
+    const isDev = process.resourcesPath.includes('node_modules\\electron\\dist') || 
+                  process.resourcesPath.includes('node_modules/electron/dist');
+    
+    if (isDev) {
+      const fs = require('fs');
+      const expectedPath = path.join(process.resourcesPath, 'app-update.yml');
+      const sourcePath = path.join(app.getAppPath(), 'app-update.yml');
+      
+      console.log('Development mode detected, checking app-update.yml paths:');
+      console.log('  Source path:', sourcePath);
+      console.log('  Expected path:', expectedPath);
+      
+      try {
+        if (fs.existsSync(sourcePath)) {
+          // Create the directory if it doesn't exist
+          const dir = path.dirname(expectedPath);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            console.log('Created directory:', dir);
+          }
+          // Always copy the file to ensure it's up to date
+          fs.copyFileSync(sourcePath, expectedPath);
+          console.log('✓ Copied app-update.yml to expected location for development');
+        } else {
+          console.warn('Source app-update.yml not found at:', sourcePath);
+        }
+      } catch (error) {
+        console.warn('Failed to copy app-update.yml to expected location:', error.message);
+      }
+    }
+    
     console.log('Using manual GitHub configuration for updates');
     console.log('Update feed URL configured for:', {
       provider: 'github',
