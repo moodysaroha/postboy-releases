@@ -128,8 +128,8 @@ if (-not $AutoConfirm) {
     Write-Info "Auto-confirm enabled, proceeding with release..."
 }
 
-Write-Info "Building application with Electron Forge..."
-yarn run make
+Write-Info "Building application with Electron Forge (with code obfuscation)..."
+yarn run make-secure
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to build application"
     exit 1
@@ -266,8 +266,6 @@ releaseDate: $((Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"))
 } else {
     Write-Warning "Could not find all required files for latest.yml generation"
 }
-
-Write-Info "Creating GitHub release using GitHub CLI..."
 
 # Check if gh CLI is available
 $ghAvailable = Get-Command gh -ErrorAction SilentlyContinue

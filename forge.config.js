@@ -3,7 +3,11 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: "*.{node,dll}",
+      // Note: Asar encryption requires electron-forge 7+ and doesn't prevent all extraction
+      // but makes it significantly harder
+    },
     icon: './src/assets/icons/win/icon.ico', // Use explicit .ico extension for Windows
     executableName: 'postboy',
     win32metadata: {
@@ -86,7 +90,9 @@ module.exports = {
       /^\/release\.ps1/,
       /^\/releasetoteam\.ps1/,
       /^\/roadmap-editor\.html/,
-      /^\/test-apis-collection\.json/
+      /^\/test-apis-collection\.json/,
+      /^\/scripts/,
+      /^\/src-backup/,
       // Note: app-update.yml is NOT excluded so it gets included in asar as backup
     ]
   },

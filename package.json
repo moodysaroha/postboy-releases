@@ -1,7 +1,7 @@
 {
   "name": "postboy",
   "productName": "postboy",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A minimal PostBoy built with Electron for API testing.",
   "main": "src/main/index.js",
   "homepage": "https://github.com/moodysaroha/postboy",
@@ -13,10 +13,12 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
+    "make-secure": "node scripts/obfuscate.js && electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
     "postinstall": "node scripts/postinstall.js",
-    "rebuild": "electron-rebuild -f -w better-sqlite3"
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "obfuscate": "node scripts/obfuscate.js"
   },
   "keywords": [],
   "author": {
@@ -45,6 +47,9 @@
     "@electron/rebuild": "^3.7.2",
     "asar": "^3.2.0",
     "electron": "^38.0.0",
-    "electron-icon-maker": "^0.0.5"
+    "electron-icon-maker": "^0.0.5",
+    "javascript-obfuscator": "^4.1.1",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1"
   }
 }
