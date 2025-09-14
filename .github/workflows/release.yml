@@ -1,107 +1,12 @@
-name: Build and Release PostBoy
-
-on:
-  push:
-    tags:
-      - 'v*'
-
-jobs:
-  build-and-release:
-    runs-on: windows-latest
-    
-    steps:
-    - name: Checkout postboy source code
-      uses: actions/checkout@v4
-      with:
-        repository: moodysaroha/postboy
-        ref: main
-        token: ${{ secrets.GITHUB_TOKEN }}
-        path: postboy-source
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: postboy-source/package.json
-    
-    - name: Update version in package.json
-      working-directory: postboy-source
-      run: |
-        $version = "${{ github.ref_name }}" -replace '^v', ''
-        $packageJson = Get-Content package.json | ConvertFrom-Json
-        $packageJson.version = $version
-        $packageJson | ConvertTo-Json -Depth 10 | Set-Content package.json
-        Write-Host "Updated package.json version to: $version"
-    
-    - name: Install dependencies
-      working-directory: postboy-source
-      run: npm ci
-    
-    - name: Build application (make only, no publish)
-      working-directory: postboy-source
-      run: npm run make
-    
-    - name: Prepare release assets
-      working-directory: postboy-source
-      run: |
-        # Create release directory
-        New-Item -ItemType Directory -Force -Path "../release-assets"
-        
-        # Copy Squirrel.Windows files
-        $squirrelPath = "out/make/squirrel.windows/x64"
-        if (Test-Path $squirrelPath) {
-          Copy-Item "$squirrelPath/*" "../release-assets/" -Recurse -Force
-          Write-Host "Copied Squirrel.Windows assets:"
-          Get-ChildItem "../release-assets/" | ForEach-Object { Write-Host "  - $($_.Name)" }
-        } else {
-          Write-Error "Squirrel.Windows build not found at: $squirrelPath"
-          Write-Host "Available paths:"
-          Get-ChildItem "out" -Recurse -Directory | ForEach-Object { Write-Host "  - $($_.FullName)" }
-          exit 1
-        }
-    
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: release-assets/*
-        name: PostBoy ${{ github.ref_name }}
-        body: |
-          ## PostBoy ${{ github.ref_name }} - Windows Release
-          
-          ### Installation
-          Download and run `PostBoySetup.exe` to install PostBoy on Windows.
-          
-          ### Auto-Update
-          This release supports automatic updates for existing PostBoy installations.
-          
-          ### Files
-          - `PostBoySetup.exe` - Windows installer (recommended)
-          - `postboy-${{ github.ref_name }}-full.nupkg` - Squirrel update package
-          - `RELEASES` - Update manifest file
-          
-          ### System Requirements
-          - Windows 10 or later
-          - x64 architecture
-          
-          ### Changes
-          - Auto-generated Windows release from tag ${{ github.ref_name }}
-          
-          ---
-          *Built from [postboy](https://github.com/moodysaroha/postboy) repository*
-        draft: false
-        prerelease: false
-        make_latest: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Verify release
-      run: |
-        Write-Host "✅ Release created successfully!"
-        Write-Host "📦 Assets uploaded:"
-        Get-ChildItem "release-assets/" | ForEach-Object { 
-          Write-Host "  - $($_.Name) ($([math]::Round($_.Length / 1MB, 2)) MB)"
-        }
-        Write-Host ""
-        Write-Host "🔗 Release URL: https://github.com/moodysaroha/postboy-releases/releases/tag/${{ github.ref_name }}"
-        Write-Host "🔄 Auto-updater will now detect this release"
+# No GitHub Actions workflow needed!
+# 
+# Releases are created directly by the releasetoteam.ps1 script
+# from the postboy repository using GitHub CLI or API calls.
+#
+# This keeps the build process simple and avoids:
+# - Double builds
+# - Permission issues with private repositories  
+# - Complex token management
+#
+# To create a release, simply run: .\releasetoteam.ps1
+# from the postboy repository.

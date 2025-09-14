@@ -1,0 +1,12 @@
+# This repository should contain NO source code
+# Only release assets and metadata
+
+# Ignore everything by default
+*
+
+# Allow only specific files
+!README.md
+!.gitignore
+!.github/
+!.github/workflows/
+!.github/workflows/*.yml
