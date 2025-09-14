@@ -18,20 +18,26 @@ if (!electronExists && isCI) {
   process.exit(0);
 }
 
-// Simple approach - just try to run electron-rebuild
+// Simple approach - just try to run electron-rebuild with timeout
 try {
   console.log('Rebuilding native modules for Electron...');
   execSync('npx electron-rebuild -f -w better-sqlite3', {
     stdio: 'inherit',
-    cwd: path.join(__dirname, '..')
+    cwd: path.join(__dirname, '..'),
+    timeout: 300000 // 5 minute timeout to prevent runaway processes
   });
-  console.log('Native modules rebuilt successfully');
+  console.log('✔ Native modules rebuilt successfully');
 } catch (error) {
-  if (isCI) {
+  if (error.signal === 'SIGTERM' || error.code === 'TIMEOUT') {
+    console.error('❌ Rebuild timed out - this prevents runaway processes');
+    console.log('💡 You can manually rebuild with: yarn rebuild');
+  } else if (isCI) {
     console.log('Warning: electron-rebuild failed in CI, but continuing...');
-    process.exit(0);
   } else {
     console.error('Failed to rebuild native modules:', error.message);
-    process.exit(1);
+    console.log('💡 You can manually rebuild with: yarn rebuild');
   }
+  
+  // Don't exit with error - let the build continue
+  console.log('Continuing without rebuild...');
 }
