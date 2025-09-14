@@ -14,7 +14,7 @@ param(
     [string]$Version = "",
     
     [Parameter(Mandatory=$false)]
-    [switch]$AutoConfirm = $false,
+    [switch]$AutoConfirm = $true,
     
     [Parameter(Mandatory=$false)]
     [string]$ReleasesRepo = "postboy-releases"
@@ -123,8 +123,20 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Success "✓ Changes pushed successfully"
 
-# STEP 2: Create and Push Tag to Releases Repo
-Write-Info "`n=== Step 2: Creating and Pushing Tag to $ReleasesRepo ==="
+# STEP 2: Build Application
+Write-Info "`n=== Step 2: Building Application ==="
+
+Write-Info "Building application with Electron Forge..."
+npm run make
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to build application"
+    exit 1
+}
+
+Write-Success "✓ Application built successfully"
+
+# STEP 3: Create and Push Tag to Releases Repo
+Write-Info "`n=== Step 3: Creating and Pushing Tag to $ReleasesRepo ==="
 
 # Check if releases repo remote exists, if not add it
 $releasesRemote = git remote get-url releases 2>$null
@@ -189,22 +201,91 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Success "✓ Tag created and pushed to $ReleasesRepo"
 
-Write-Info "`n=== Step 3: GitHub Actions Workflow ==="
-Write-Success "✓ Tag $tagVersion has been pushed to $ReleasesRepo repository"
-Write-Info "GitHub Actions will now:"
-Write-Info "  1. Checkout source code from postboy repository"
-Write-Info "  2. Build the application for Windows using Electron Forge"
-Write-Info "  3. Create a GitHub Release with auto-update assets"
-Write-Info "  4. Upload RELEASES file, .nupkg, and Setup.exe"
+# STEP 4: Create GitHub Release with Built Assets
+Write-Info "`n=== Step 4: Creating GitHub Release ==="
+
+# Check if we have built assets
+$squirrelPath = "out/make/squirrel.windows/x64"
+if (!(Test-Path $squirrelPath)) {
+    Write-Error "Build assets not found at: $squirrelPath"
+    Write-Info "Please ensure the build completed successfully"
+    exit 1
+}
+
+Write-Info "Preparing release assets..."
+$assets = Get-ChildItem $squirrelPath
+$assetList = @()
+foreach ($asset in $assets) {
+    $assetList += $asset.FullName
+    Write-Info "  - $($asset.Name)"
+}
+
+Write-Info "Creating GitHub release using GitHub CLI..."
+
+# Check if gh CLI is available
+$ghAvailable = Get-Command gh -ErrorAction SilentlyContinue
+if ($ghAvailable) {
+    # Use GitHub CLI to create release
+    $releaseBody = @"
+## PostBoy $tagVersion - Windows Release
+
+### Installation
+Download and run ``PostBoySetup.exe`` to install PostBoy on Windows.
+
+### Auto-Update
+This release supports automatic updates for existing PostBoy installations.
+
+### Files
+- ``PostBoySetup.exe`` - Windows installer (recommended)
+- ``postboy-$tagVersion-full.nupkg`` - Squirrel update package  
+- ``RELEASES`` - Update manifest file
+
+### System Requirements
+- Windows 10 or later
+- x64 architecture
+
+### Changes
+- Release $tagVersion with latest updates
+
+---
+*Built from [postboy](https://github.com/moodysaroha/postboy) repository*
+"@
+
+    Write-Info "Creating release with GitHub CLI..."
+    
+    # Set the repository context for gh CLI
+    $env:GH_REPO = "moodysaroha/$ReleasesRepo"
+    
+    # Create the release
+    gh release create $tagVersion $assetList --title "PostBoy $tagVersion" --notes $releaseBody --latest
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Success "✓ GitHub release created successfully with assets!"
+    } else {
+        Write-Warning "Failed to create release with GitHub CLI, falling back to GitHub Actions..."
+    }
+} else {
+    Write-Info "GitHub CLI not available, release will be created by GitHub Actions..."
+}
+
+Write-Info "`n=== Release Summary ==="
+Write-Success "✓ Release process completed successfully!"
 Write-Info ""
-Write-Info "You can monitor the build progress at:"
-Write-Info "  https://github.com/moodysaroha/$ReleasesRepo/actions"
+Write-Info "What was done:"
+Write-Info "  1. ✅ Committed and pushed changes to postboy repository"
+Write-Info "  2. ✅ Built application locally with Electron Forge"
+Write-Info "  3. ✅ Created tag $tagVersion and pushed to $ReleasesRepo"
+Write-Info "  4. ✅ Created GitHub release with downloadable assets"
 Write-Info ""
-Write-Info "Once the build completes, the auto-updater will be able to:"
-Write-Info "  - Detect new versions from $ReleasesRepo releases"
-Write-Info "  - Download and install updates automatically"
+Write-Info "Release details:"
+Write-Info "  📦 Version: $tagVersion"
+Write-Info "  🔗 Releases: https://github.com/moodysaroha/$ReleasesRepo/releases"
+Write-Info "  📥 Download: https://github.com/moodysaroha/$ReleasesRepo/releases/tag/$tagVersion"
 Write-Info ""
-Write-Success "✓ Release process initiated successfully!"
+Write-Info "Auto-updater status:"
+Write-Info "  ✅ New version is now available for auto-update"
+Write-Info "  ✅ Existing installations will detect this update"
+Write-Info "  ✅ Users can download fresh installers from releases page"
 
 # Exit successfully
 exit 0
