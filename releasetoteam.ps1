@@ -220,6 +220,51 @@ foreach ($asset in $assets) {
     Write-Info "  - $($asset.Name)"
 }
 
+# Create latest.yml file for electron-updater
+Write-Info "Creating latest.yml for electron-updater..."
+$versionWithoutV = $tagVersion -replace '^v', ''
+$setupExe = Get-ChildItem $squirrelPath -Filter "*Setup.exe" | Select-Object -First 1
+$nupkgFile = Get-ChildItem $squirrelPath -Filter "*.nupkg" | Select-Object -First 1
+$releasesFile = Get-ChildItem $squirrelPath -Filter "RELEASES" | Select-Object -First 1
+
+if ($setupExe -and $nupkgFile -and $releasesFile) {
+    # Calculate file hashes
+    $setupHash = (Get-FileHash $setupExe.FullName -Algorithm SHA512).Hash
+    $nupkgHash = (Get-FileHash $nupkgFile.FullName -Algorithm SHA512).Hash
+    $releasesHash = (Get-FileHash $releasesFile.FullName -Algorithm SHA512).Hash
+    
+    # Get file sizes
+    $setupSize = $setupExe.Length
+    $nupkgSize = $nupkgFile.Length
+    $releasesSize = $releasesFile.Length
+    
+    # Create latest.yml content
+    $latestYml = @"
+version: $versionWithoutV
+files:
+  - url: $($setupExe.Name)
+    sha512: $setupHash
+    size: $setupSize
+  - url: $($nupkgFile.Name)
+    sha512: $nupkgHash
+    size: $nupkgSize
+  - url: $($releasesFile.Name)
+    sha512: $releasesHash
+    size: $releasesSize
+path: $($setupExe.Name)
+sha512: $setupHash
+releaseDate: $((Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"))
+"@
+    
+    $latestYmlPath = Join-Path $squirrelPath "latest.yml"
+    Set-Content -Path $latestYmlPath -Value $latestYml -Encoding UTF8
+    $assetList += $latestYmlPath
+    Write-Success "✓ Created latest.yml for electron-updater"
+    Write-Info "  - latest.yml"
+} else {
+    Write-Warning "Could not find all required files for latest.yml generation"
+}
+
 Write-Info "Creating GitHub release using GitHub CLI..."
 
 # Check if gh CLI is available

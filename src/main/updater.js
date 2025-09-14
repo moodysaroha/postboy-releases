@@ -114,19 +114,36 @@ class AppUpdater {
     // Configure electron-updater for GitHub releases
     autoUpdater.autoDownload = false; // Don't auto-download, let user choose
     autoUpdater.autoInstallOnAppQuit = true;
+    
+    // Enable update checking in development mode for testing
+    if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
+      console.log('Development mode detected - enabling update checks for testing');
+      autoUpdater.forceDevUpdateConfig = true;
+      // Override the isDev check
+      Object.defineProperty(app, 'isPackaged', {
+        get() {
+          return true;
+        }
+      });
+    }
 
     // Enable debug logging for electron-updater
     try {
       const log = require('electron-log');
       log.transports.file.level = 'debug';
+      log.transports.console.level = 'debug';
       autoUpdater.logger = log;
       log.info('Updater logging enabled');
+      console.log('Electron-log configured for debugging');
     } catch (e) {
       console.warn('electron-log not available; updater logs limited');
     }
     
+    console.log('App packaged status:', app.isPackaged);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('Development mode override applied:', !app.isPackaged);
+    
     // Set the feed URL manually for better control
-    const { app } = require('electron');
     const path = require('path');
     
     // Try to find app-update.yml in different locations
@@ -266,6 +283,13 @@ class AppUpdater {
 
     autoUpdater.on('error', (error) => {
       console.error('Auto-updater error:', error);
+      console.error('Full error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        code: error.code
+      });
+      
       // Clear timeout if set
       if (this.updateCheckTimeout) {
         clearTimeout(this.updateCheckTimeout);
@@ -274,18 +298,26 @@ class AppUpdater {
       
       // Parse the error message for better user feedback
       let userMessage = error.message;
+      
+      // Show the actual error for debugging, but provide user-friendly alternatives
+      console.log('Raw error message for debugging:', error.message);
+      
       if (error.message.includes('404') || error.message.includes('Not Found')) {
-        userMessage = 'Cannot find releases in postboy-releases repository. Please ensure releases exist at: https://github.com/moodysaroha/postboy-releases/releases';
+        userMessage = `Cannot find releases in postboy-releases repository. Raw error: ${error.message}`;
       } else if (error.message.includes('ENOTFOUND') || error.message.includes('ETIMEDOUT')) {
         userMessage = 'Cannot reach the update server. Please check your internet connection and try again.';
       } else if (error.message.includes('No published versions')) {
         userMessage = 'No published releases found in postboy-releases repository. Please create a release first.';
+      } else {
+        // Show the actual error message for debugging
+        userMessage = `Update check failed: ${error.message}`;
       }
       
       console.error('Detailed error information:', {
         message: error.message,
         stack: error.stack,
-        feedURL: 'https://github.com/moodysaroha/postboy-releases/releases'
+        feedURL: 'https://github.com/moodysaroha/postboy-releases/releases',
+        currentVersion: app.getVersion()
       });
       
       // Only show error dialog if this was a manual check
@@ -301,6 +333,16 @@ class AppUpdater {
 
   checkForUpdates() {
     try {
+      console.log('Starting update check...');
+      console.log('Current app version:', app.getVersion());
+      console.log('Feed URL configuration:', {
+        provider: 'github',
+        owner: 'moodysaroha',
+        repo: 'postboy-releases',
+        private: false,
+        vPrefixedTagName: true
+      });
+      
       autoUpdater.checkForUpdates();
     } catch (error) {
       console.error('Error checking for updates:', error);
