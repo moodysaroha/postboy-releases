@@ -306,6 +306,27 @@ This release supports automatic updates for existing PostBoy installations.
     
     if ($LASTEXITCODE -eq 0) {
         Write-Success "✓ GitHub release created successfully with assets!"
+        
+        # Remove source code archives that GitHub automatically creates
+        Write-Info "Removing source code archives from release..."
+        try {
+            # Get the release ID
+            $releaseInfo = gh api "repos/moodysaroha/$ReleasesRepo/releases/tags/$tagVersion" | ConvertFrom-Json
+            $releaseId = $releaseInfo.id
+            
+            # Get all assets and find source code archives
+            $assets = gh api "repos/moodysaroha/$ReleasesRepo/releases/$releaseId/assets" | ConvertFrom-Json
+            
+            foreach ($asset in $assets) {
+                if ($asset.name -match "^(Source code|$ReleasesRepo-.*)\.(zip|tar\.gz)$") {
+                    Write-Info "  Deleting: $($asset.name)"
+                    gh api -X DELETE "repos/moodysaroha/$ReleasesRepo/releases/assets/$($asset.id)"
+                }
+            }
+            Write-Success "✓ Source code archives removed from release"
+        } catch {
+            Write-Warning "Could not remove source archives: $($_.Exception.Message)"
+        }
     } else {
         Write-Warning "Failed to create release with GitHub CLI, falling back to GitHub Actions..."
     }
