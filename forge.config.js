@@ -87,6 +87,7 @@ module.exports = {
       /^\/releasetoteam\.ps1/,
       /^\/roadmap-editor\.html/,
       /^\/test-apis-collection\.json/
+      // Note: app-update.yml is NOT excluded so it gets included in asar as backup
     ]
   },
   rebuildConfig: {},

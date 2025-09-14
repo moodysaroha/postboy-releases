@@ -148,9 +148,12 @@ class AppUpdater {
     
     // Try to find app-update.yml in different locations
     const possiblePaths = [
-      path.join(process.resourcesPath, 'app-update.yml'),
-      path.join(app.getAppPath(), 'app-update.yml'),
-      path.join(process.resourcesPath, '..', 'app-update.yml')
+      path.join(process.resourcesPath, 'app-update.yml'),           // Installed app (extraResources)
+      path.join(app.getAppPath(), 'app-update.yml'),               // Dev mode / asar bundle
+      path.join(process.resourcesPath, '..', 'app-update.yml'),    // Alternative location
+      path.join(process.resourcesPath, '..', '..', 'app-update.yml'), // Another alternative
+      path.join(__dirname, '..', '..', 'app-update.yml'),         // Relative to main script
+      path.join(__dirname, '..', '..', '..', 'app-update.yml')    // Another relative path
     ];
     
     console.log('Looking for app-update.yml in:', possiblePaths);
@@ -197,37 +200,42 @@ class AppUpdater {
       });
     }
     
-    // In development mode, ensure app-update.yml exists where electron-updater expects it during download
-    // Check if we're in development by looking at the path structure
-    const isDev = process.resourcesPath.includes('node_modules\\electron\\dist') || 
-                  process.resourcesPath.includes('node_modules/electron/dist');
+    // Ensure app-update.yml exists where electron-updater expects it during download
+    // This works for both development and production
+    const fs = require('fs');
+    const expectedPath = path.join(process.resourcesPath, 'app-update.yml');
     
-    if (isDev) {
-      const fs = require('fs');
-      const expectedPath = path.join(process.resourcesPath, 'app-update.yml');
-      const sourcePath = path.join(app.getAppPath(), 'app-update.yml');
-      
-      console.log('Development mode detected, checking app-update.yml paths:');
-      console.log('  Source path:', sourcePath);
-      console.log('  Expected path:', expectedPath);
-      
-      try {
-        if (fs.existsSync(sourcePath)) {
-          // Create the directory if it doesn't exist
-          const dir = path.dirname(expectedPath);
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-            console.log('Created directory:', dir);
-          }
-          // Always copy the file to ensure it's up to date
-          fs.copyFileSync(sourcePath, expectedPath);
-          console.log('✓ Copied app-update.yml to expected location for development');
-        } else {
-          console.warn('Source app-update.yml not found at:', sourcePath);
-        }
-      } catch (error) {
-        console.warn('Failed to copy app-update.yml to expected location:', error.message);
+    // Find the source file from our possible paths
+    let sourcePath = null;
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath) && testPath !== expectedPath) {
+        sourcePath = testPath;
+        break;
       }
+    }
+    
+    console.log('Checking app-update.yml paths:');
+    console.log('  Source path found:', sourcePath);
+    console.log('  Expected path:', expectedPath);
+    
+    try {
+      if (sourcePath && !fs.existsSync(expectedPath)) {
+        // Create the directory if it doesn't exist
+        const dir = path.dirname(expectedPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+          console.log('Created directory:', dir);
+        }
+        // Copy the file to ensure it's available for electron-updater
+        fs.copyFileSync(sourcePath, expectedPath);
+        console.log('✓ Copied app-update.yml to expected location:', expectedPath);
+      } else if (fs.existsSync(expectedPath)) {
+        console.log('✓ app-update.yml already exists at expected location');
+      } else {
+        console.warn('⚠️ No source app-update.yml found to copy');
+      }
+    } catch (error) {
+      console.warn('Failed to copy app-update.yml to expected location:', error.message);
     }
     
     console.log('Using manual GitHub configuration for updates');
