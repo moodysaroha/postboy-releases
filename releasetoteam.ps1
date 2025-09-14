@@ -49,47 +49,6 @@ $packageJson = Get-Content package.json | ConvertFrom-Json
 $currentVersion = $packageJson.version
 Write-Info "Current version in package.json: $currentVersion"
 
-# If no version provided, auto-increment patch version
-if ([string]::IsNullOrEmpty($Version)) {
-    $versionParts = $currentVersion -split '\.'
-    $major = [int]$versionParts[0]
-    $minor = [int]$versionParts[1]
-    $patch = [int]$versionParts[2]
-    $patch++
-    $Version = "$major.$minor.$patch"
-    Write-Info "Auto-incrementing to version: $Version"
-}
-
-# Ensure version starts with 'v' for the tag
-$tagVersion = if ($Version.StartsWith('v')) { $Version } else { "v$Version" }
-
-# Prompt for commit message if not provided
-if ($CommitMessage -eq "Release update") {
-    $userMessage = Read-Host "Enter commit message (default: 'Release $tagVersion')"
-    if (![string]::IsNullOrWhiteSpace($userMessage)) {
-        $CommitMessage = $userMessage
-    } else {
-        $CommitMessage = "Release $tagVersion"
-    }
-}
-
-Write-Info "`nRelease Summary:"
-Write-Info "  Commit Message: $CommitMessage"
-Write-Info "  Version Tag: $tagVersion"
-Write-Info "  Releases Repo: $ReleasesRepo"
-Write-Info ""
-
-# Confirm before proceeding
-if (-not $AutoConfirm) {
-    $confirm = Read-Host "Do you want to proceed? (Y/n)"
-    if ($confirm -eq 'n' -or $confirm -eq 'N') {
-        Write-Warning "Release cancelled."
-        exit 0
-    }
-} else {
-    Write-Info "Auto-confirm enabled, proceeding with release..."
-}
-
 Write-Info "`nStarting release process..."
 
 # STEP 1: Commit and push changes
@@ -121,11 +80,53 @@ Write-Success "✓ Changes pushed successfully"
 # STEP 2: Update Package Version and Build Application
 Write-Info "`n=== Step 2: Update Package Version and Build Application ==="
 
+# If no version provided, auto-increment patch version (moved here to happen before build)
+if ([string]::IsNullOrEmpty($Version)) {
+    $versionParts = $currentVersion -split '\.'
+    $major = [int]$versionParts[0]
+    $minor = [int]$versionParts[1]
+    $patch = [int]$versionParts[2]
+    $patch++
+    $Version = "$major.$minor.$patch"
+    Write-Info "Auto-incrementing to version: $Version"
+}
+
 # Update package.json with the new version BEFORE building
 Write-Info "Updating package.json version to $Version..."
 $packageJson.version = $Version
 $packageJson | ConvertTo-Json -Depth 10 | Set-Content package.json
 Write-Success "✓ Updated package.json to version $Version"
+
+# Now create the tag version (after we know the actual version)
+$tagVersion = if ($Version.StartsWith('v')) { $Version } else { "v$Version" }
+Write-Info "Tag version will be: $tagVersion"
+
+# Prompt for commit message if not provided (now that we have the tag version)
+if ($CommitMessage -eq "Release update") {
+    $userMessage = Read-Host "Enter commit message (default: 'Release $tagVersion')"
+    if (![string]::IsNullOrWhiteSpace($userMessage)) {
+        $CommitMessage = $userMessage
+    } else {
+        $CommitMessage = "Release $tagVersion"
+    }
+}
+
+Write-Info "`nRelease Summary:"
+Write-Info "  Commit Message: $CommitMessage"
+Write-Info "  Version Tag: $tagVersion"
+Write-Info "  Releases Repo: $ReleasesRepo"
+Write-Info ""
+
+# Confirm before proceeding
+if (-not $AutoConfirm) {
+    $confirm = Read-Host "Do you want to proceed? (Y/n)"
+    if ($confirm -eq 'n' -or $confirm -eq 'N') {
+        Write-Warning "Release cancelled."
+        exit 0
+    }
+} else {
+    Write-Info "Auto-confirm enabled, proceeding with release..."
+}
 
 Write-Info "Building application with Electron Forge..."
 yarn run make
