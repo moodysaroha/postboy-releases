@@ -58,11 +58,6 @@ if ([string]::IsNullOrEmpty($Version)) {
     $patch++
     $Version = "$major.$minor.$patch"
     Write-Info "Auto-incrementing to version: $Version"
-    
-    # Update package.json with new version
-    $packageJson.version = $Version
-    $packageJson | ConvertTo-Json -Depth 10 | Set-Content package.json
-    Write-Success "Updated package.json with version $Version"
 }
 
 # Ensure version starts with 'v' for the tag
@@ -123,11 +118,17 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Success "✓ Changes pushed successfully"
 
-# STEP 2: Build Application
-Write-Info "`n=== Step 2: Building Application ==="
+# STEP 2: Update Package Version and Build Application
+Write-Info "`n=== Step 2: Update Package Version and Build Application ==="
+
+# Update package.json with the new version BEFORE building
+Write-Info "Updating package.json version to $Version..."
+$packageJson.version = $Version
+$packageJson | ConvertTo-Json -Depth 10 | Set-Content package.json
+Write-Success "✓ Updated package.json to version $Version"
 
 Write-Info "Building application with Electron Forge..."
-npm run make
+yarn run make
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to build application"
     exit 1

@@ -154,15 +154,48 @@ class AppUpdater {
     ];
     
     console.log('Looking for app-update.yml in:', possiblePaths);
+    console.log('process.resourcesPath:', process.resourcesPath);
+    console.log('app.getAppPath():', app.getAppPath());
     
-    // For now, set the feed URL manually to avoid file path issues
-    autoUpdater.setFeedURL({
-      provider: 'github',
-      owner: 'moodysaroha',
-      repo: 'postboy-releases',
-      private: false,
-      vPrefixedTagName: true
-    });
+    // Check if app-update.yml exists and try to use it
+    let configFound = false;
+    for (const configPath of possiblePaths) {
+      try {
+        if (require('fs').existsSync(configPath)) {
+          console.log('Found app-update.yml at:', configPath);
+          // Try to read and parse the config
+          const yaml = require('js-yaml');
+          const fs = require('fs');
+          const configContent = fs.readFileSync(configPath, 'utf8');
+          const config = yaml.load(configContent);
+          console.log('Loaded config from app-update.yml:', config);
+          
+          autoUpdater.setFeedURL({
+            provider: config.provider || 'github',
+            owner: config.owner,
+            repo: config.repo,
+            private: config.private || false,
+            vPrefixedTagName: true
+          });
+          configFound = true;
+          break;
+        }
+      } catch (error) {
+        console.warn('Failed to load config from', configPath, ':', error.message);
+      }
+    }
+    
+    // Fallback to manual configuration if app-update.yml not found
+    if (!configFound) {
+      console.log('app-update.yml not found, using manual configuration');
+      autoUpdater.setFeedURL({
+        provider: 'github',
+        owner: 'moodysaroha',
+        repo: 'postboy-releases',
+        private: false,
+        vPrefixedTagName: true
+      });
+    }
     
     console.log('Using manual GitHub configuration for updates');
     console.log('Update feed URL configured for:', {
